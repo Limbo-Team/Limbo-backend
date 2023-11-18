@@ -1,0 +1,207 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Limbo Quiz App API
+  description: API documentation for the Limbo quiz application on iOS and Android.
+
+paths:
+  /user/signin:
+    post:
+      tags:
+        - user
+      summary: Sign in user
+      description: |
+        This endpoint allows to sign in to user account by providing the necessary information.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "201":
+          description: User signed in successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        "400":
+          description: Bad request. Check the request parameters.
+        "401":
+          description: Unauthorized. Incorrect username or password.
+        "500":
+          description: Internal server error. Something went wrong on the server side.
+
+  /user/signup:
+    post:
+      tags:
+        - user
+      summary: Register a new user account
+      description: |
+        This endpoint allows the registration of a new user account by providing the necessary information.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                email:
+                  type: string
+                  format: email
+      responses:
+        "201":
+          description: User account registered successfully.
+        "400":
+          description: Bad request. Check the request parameters.
+        "500":
+          description: Internal server error. Something went wrong on the server side.
+
+  /user/chapters:
+    get:
+      tags:
+        - user
+      summary: Get a list of progress in chapters
+      description: |
+        This endpoint allows the registration of a new user account by providing the necessary information.
+      responses:
+        "201":
+          description: User allowed to get chapters.
+          content:
+            application/json:
+              example:
+                - id: 1
+                  value: "Percentage"
+                - id: 2
+                  value: "Percentage"
+                - id: 3
+                  value: "Percentage"
+        "400":
+          description: Bad request. Check the request parameters.
+        "500":
+          description: Internal server error. Something went wrong on the server side.
+
+  /user/stats:
+    get:
+      tags:
+        - user
+      summary: Get a list of statistics
+      description: |
+        This endpoint allows the registration of a new user account by providing the necessary information.
+      responses:
+        "201":
+          description: User allowed to get stats.
+          content:
+            application/json:
+              example:
+                - id: 1
+                  value: "Some value 1"
+                - id: 2
+                  value: "Some value 2"
+                - id: 3
+                  value: "Some value 3"
+        "400":
+          description: Bad request. Check the request parameters.
+        "500":
+          description: Internal server error. Something went wrong on the server side.
+
+  /user/info:
+    get:
+      tags:
+        - user
+      summary: Get a user info
+      description: |
+        This endpoint allows the registration of a new user account by providing the necessary information.
+      responses:
+        "201":
+          description: User allowed to get stats.
+          content:
+            application/json:
+              example:
+                - Name: Jan
+                  Surname: Kowalski
+                  Photo_URL: URL
+                  Phloxes: 32
+        "400":
+          description: Bad request. Check the request parameters.
+        "500":
+          description: Internal server error. Something went wrong on the server side.
+
+  /user/email:
+    patch:
+      tags:
+        - user
+      summary: Change user email
+      description: |
+        This endpoint allows the registration of a new user account by providing the necessary information.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+
+      responses:
+        "201":
+          description: Success.
+        "400":
+          description: Bad request. Check the request parameters.
+        "500":
+          description: Internal server error. Something went wrong on the server side.
+
+  /chapters:
+    get:
+      tags:
+        - chapters
+      summary: Get list of chapters
+      description: |
+        This endpoint allows the registration of a new user account by providing the necessary information.
+      responses:
+        "201":
+          description: Success.
+        "400":
+          description: Bad request. Check the request parameters.
+        "500":
+          description: Internal server error. Something went wrong on the server side.
+
+  /prize:
+    post:
+      tags:
+        - prize
+      summary: Get prize for phloxes
+      description: |
+        This endpoint allows the registration of a new user account by providing the necessary information.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+
+      responses:
+        "201":
+          description: Success.
+        "400":
+          description: Bad request. Check the request parameters.
+        "500":
+          description: Internal server error. Something went wrong on the server side.
