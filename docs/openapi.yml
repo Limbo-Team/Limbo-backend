@@ -75,7 +75,7 @@ paths:
         - user
       summary: Get a list of progress in chapters
       description: |
-        This endpoint allows the registration of a new user account by providing the necessary information.
+        This endpoint allows to fetch a list of progress in chapters.
       responses:
         "201":
           description: User allowed to get chapters.
@@ -99,7 +99,7 @@ paths:
         - user
       summary: Get a list of statistics
       description: |
-        This endpoint allows the registration of a new user account by providing the necessary information.
+        This endpoint allows to fetch a list of statistics.
       responses:
         "201":
           description: User allowed to get stats.
@@ -123,17 +123,17 @@ paths:
         - user
       summary: Get a user info
       description: |
-        This endpoint allows the registration of a new user account by providing the necessary information.
+        This endpoint allows to fetch a user info.
       responses:
         "201":
           description: User allowed to get stats.
           content:
             application/json:
               example:
-                - Name: Jan
-                  Surname: Kowalski
-                  Photo_URL: URL
-                  Phloxes: 32
+                - name: Jan
+                  surname: Kowalski
+                  photo_URL: URL
+                  phloxes: 32
         "400":
           description: Bad request. Check the request parameters.
         "500":
@@ -145,7 +145,7 @@ paths:
         - user
       summary: Change user email
       description: |
-        This endpoint allows the registration of a new user account by providing the necessary information.
+        This endpoint allows to change user email.
       requestBody:
         required: true
         content:
@@ -171,10 +171,73 @@ paths:
         - chapters
       summary: Get list of chapters
       description: |
-        This endpoint allows the registration of a new user account by providing the necessary information.
+        This endpoint allows to fetch a list of chapters.
       responses:
         "201":
           description: Success.
+        "400":
+          description: Bad request. Check the request parameters.
+        "500":
+          description: Internal server error. Something went wrong on the server side.
+
+  /chapters/{id}:
+    get:
+      tags:
+        - chapters
+      summary: Get chapter by id
+      description: |
+        This endpoint allows to fetch a chapter by id and return list of quizzes.
+      parameters:
+        - name: id
+          in: path
+          description: Chapter id
+          required: true
+          schema:
+            type: number
+            format: number
+      responses:
+        "201":
+          description: User allowed to get quizzes.
+          content:
+            application/json:
+              example:
+                - id: 182
+                  title: "Some title"
+                  photo_URL: URL
+                  prize: 32
+                - id: 183
+                  title: "Some title"
+                  photo_URL: URL
+                  prize: 30
+        "400":
+          description: Bad request. Check the request parameters.
+        "500":
+          description: Internal server error. Something went wrong on the server side.
+
+  /chapters/{id}/quiz/{id}:
+    get:
+      tags:
+        - chapters
+      summary: Get quiz by id
+      description: |
+        This endpoint allows to fetch a quiz by id and return list of questions.
+      parameters:
+        - name: id
+          in: path
+          description: Chapter id
+          required: true
+          schema:
+            type: number
+            format: number
+      responses:
+        "201":
+          description: User allowed to get quiz.
+          content:
+            application/json:
+              example:
+                - id: 182
+                  title: "Some title"
+                  content: "some content"
         "400":
           description: Bad request. Check the request parameters.
         "500":
@@ -186,7 +249,7 @@ paths:
         - prize
       summary: Get prize for phloxes
       description: |
-        This endpoint allows the registration of a new user account by providing the necessary information.
+        This endpoint allows to get prize for phloxes.
       requestBody:
         required: true
         content:
@@ -194,9 +257,9 @@ paths:
             schema:
               type: object
               properties:
-                email:
-                  type: string
-                  format: email
+                prizeId:
+                  type: number
+                  format: number
 
       responses:
         "201":
