@@ -7,9 +7,8 @@
         "build": "npm install && npm run build-ts --silent",
         "build-ts": "tsc",
         "dev": "concurrently \"npx tsc --watch\" \"node --env-file=.env --watch lib/app.js\"",
-        "start": "concurrently \"npm run build-ts --silent\" \"node --env-file=.env lib/app.js\"",
-        "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-        "postinstall": "npm run build-ts"
+        "start": "node --env-file=.env lib/app.js",
+        "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
     },
     "author": "Limbo-team",
     "license": "ISC",
