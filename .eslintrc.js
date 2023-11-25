@@ -25,6 +25,7 @@ module.exports = {
                 singleQuote: true,
                 trailingComma: 'all',
                 arrowParens: 'always',
+                endOfLine: 'auto',
             },
         ],
         '@typescript-eslint/no-explicit-any': 'off',
