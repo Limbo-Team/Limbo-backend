@@ -1,8 +1,9 @@
 import { Router } from 'express';
-import { exampleController } from '../controllers/exampleController';
+import { addExample, getExamplesCollection } from '../controllers/exampleDBController';
 
-const exampleRouter = Router();
+const exampleDBRouter = Router();
 
-exampleRouter.get('/', exampleController);
+exampleDBRouter.get('/', getExamplesCollection);
+exampleDBRouter.post('/', addExample);
 
-export default exampleRouter;
+export default exampleDBRouter;
