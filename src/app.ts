@@ -6,6 +6,7 @@ import errorLogger from './middlewares/errorLogger';
 import errorHandler from './middlewares/errorHandler';
 import { appPort } from './config/environment';
 import healthcheckRouter from './routes/healthcheck';
+import userRouter from './routes/user';
 
 const app = express();
 app.use(express.json());
@@ -13,6 +14,7 @@ app.use(requestLogger);
 app.use(responseLogger);
 app.use('/healthcheck', healthcheckRouter);
 app.use('/exampledb', exampleDBRouter);
+app.use('/user', userRouter);
 app.use(errorLogger);
 app.use(errorHandler);
 app.listen(appPort, () => console.log(`💪 Server is running on port ${appPort}`));
