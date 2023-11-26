@@ -13,15 +13,15 @@ const quizSchema = new mongoose.Schema({
         min: 0,
         max: 100,
     },
-    questionIds: {
+    questions: {
         type: [mongoose.Schema.Types.ObjectId],
-        required: true,
+        required: false,
         ref: 'Question',
         default: [],
     },
     createdAt: {
         type: Date,
-        required: true,
+        required: false,
         default: Date.now,
     },
 });

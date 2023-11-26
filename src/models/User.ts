@@ -47,24 +47,24 @@ const userSchema = new mongoose.Schema({
     rewards: {
         type: [mongoose.Schema.Types.ObjectId],
         ref: 'Reward',
-        required: true,
+        required: false,
         default: [],
     },
     chaptersDone: {
         type: [mongoose.Schema.Types.ObjectId],
         ref: 'Chapter',
-        required: true,
+        required: false,
         default: [],
     },
     quizesDone: {
         type: [mongoose.Schema.Types.ObjectId],
         ref: 'Quiz',
-        required: true,
+        required: false,
         default: [],
     },
     createdAt: {
         type: Date,
-        required: true,
+        required: false,
         default: Date.now,
     },
 });

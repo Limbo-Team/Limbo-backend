@@ -7,15 +7,15 @@ const chapterSchema = new mongoose.Schema({
         minLength: 5,
         max: 50,
     },
-    quizIds: {
+    quizzes: {
         type: [mongoose.Schema.Types.ObjectId],
         ref: 'Quiz',
-        required: true,
+        required: false,
         default: [],
     },
     createdAt: {
         type: Date,
-        required: true,
+        required: false,
         default: Date.now,
     },
 });
