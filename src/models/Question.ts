@@ -21,8 +21,8 @@ const questionSchema = new mongoose.Schema({
         type: [String],
         required: true,
     },
-    correctAnswer: {
-        type: String,
+    correctAnswerIndex: {
+        type: Number,
         required: true,
     },
     createdAt: {

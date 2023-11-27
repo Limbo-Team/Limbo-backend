@@ -53,7 +53,7 @@ class DatabaseService {
             const createdQuestion = await QuestionModel.create<Question>({
                 description: 'Example question',
                 answers: ['a', 'b', 'c', 'd'],
-                correctAnswer: 'a',
+                correctAnswerIndex: 0,
             });
 
             const createdQuiz = await QuizModel.create<Quiz>({
