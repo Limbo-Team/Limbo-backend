@@ -50,18 +50,6 @@ const userSchema = new mongoose.Schema({
         required: false,
         default: [],
     },
-    chaptersDone: {
-        type: [mongoose.Schema.Types.ObjectId],
-        ref: 'Chapter',
-        required: false,
-        default: [],
-    },
-    quizesDone: {
-        type: [mongoose.Schema.Types.ObjectId],
-        ref: 'Quiz',
-        required: false,
-        default: [],
-    },
     createdAt: {
         type: Date,
         required: false,

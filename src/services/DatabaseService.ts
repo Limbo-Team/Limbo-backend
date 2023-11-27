@@ -7,6 +7,8 @@ import { Reward, RewardModel } from '../models/Reward';
 import { Chapter, ChapterModel } from '../models/Chapter';
 import { Quiz, QuizModel } from '../models/Quiz';
 import { Question, QuestionModel } from '../models/Question';
+import { QuizDone, QuizDoneModel } from '../models/QuizDone';
+import { ChapterDone, ChapterDoneModel } from '../models/ChapterDone';
 
 class DatabaseService {
     async connect(): Promise<DatabaseService> {
@@ -34,7 +36,7 @@ class DatabaseService {
                 name: 'Example',
             });
 
-            await UserModel.create<User>({
+            const createdUser = await UserModel.create<User>({
                 name: 'Example name',
                 surname: 'Example surname',
                 email: 'asd@asd.pl',
@@ -63,6 +65,16 @@ class DatabaseService {
             const createdChapter = await ChapterModel.create<Chapter>({
                 title: 'Example chapter',
                 quizzes: [createdQuiz._id],
+            });
+
+            await QuizDoneModel.create<QuizDone>({
+                userId: createdUser._id,
+                quizId: createdQuiz._id,
+            });
+
+            await ChapterDoneModel.create<ChapterDone>({
+                userId: createdUser._id,
+                chapterId: createdChapter._id,
             });
 
             console.info('🗄️ Added example to MongoDB');
