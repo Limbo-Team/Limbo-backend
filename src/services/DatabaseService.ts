@@ -2,6 +2,13 @@ import mongoose from 'mongoose';
 import handleError from '../utils/handleError';
 import { Example, ExampleModel } from '../models/Example';
 import { mongoDBUri } from '../config/environment';
+import { UserModel, User } from '../models/User';
+import { Reward, RewardModel } from '../models/Reward';
+import { Chapter, ChapterModel } from '../models/Chapter';
+import { Quiz, QuizModel } from '../models/Quiz';
+import { Question, QuestionModel } from '../models/Question';
+import { QuizDone, QuizDoneModel } from '../models/QuizDone';
+import { ChapterDone, ChapterDoneModel } from '../models/ChapterDone';
 
 class DatabaseService {
     async connect(): Promise<DatabaseService> {
@@ -25,13 +32,54 @@ class DatabaseService {
 
     async addExample(): Promise<void> {
         try {
-            await ExampleModel.create({
+            await ExampleModel.create<Example>({
                 name: 'Example',
+            });
+
+            const createdUser = await UserModel.create<User>({
+                name: 'Example name',
+                surname: 'Example surname',
+                email: 'asd@asd.pl',
+                image: 'https://i.imgur.com/e8buxpa.jpeg',
+                points: 0,
+                password: 'asd',
+            });
+
+            await RewardModel.create<Reward>({
+                cost: 1500,
                 description: 'This is an example',
             });
+
+            const createdQuestion = await QuestionModel.create<Question>({
+                description: 'Example question',
+                answers: ['a', 'b', 'c', 'd'],
+                correctAnswerIndex: 0,
+            });
+
+            const createdQuiz = await QuizModel.create<Quiz>({
+                title: 'Example quiz',
+                points: 100,
+                questions: [createdQuestion._id],
+            });
+
+            const createdChapter = await ChapterModel.create<Chapter>({
+                title: 'Example chapter',
+                quizzes: [createdQuiz._id],
+            });
+
+            await QuizDoneModel.create<QuizDone>({
+                userId: createdUser._id,
+                quizId: createdQuiz._id,
+            });
+
+            await ChapterDoneModel.create<ChapterDone>({
+                userId: createdUser._id,
+                chapterId: createdChapter._id,
+            });
+
             console.info('🗄️ Added example to MongoDB');
         } catch (error) {
-            throw handleError(error, 'Failed to add example to MongoDB');
+            throw handleError(error, (error as any).message);
         }
     }
 
