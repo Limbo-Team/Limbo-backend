@@ -12,7 +12,6 @@ export const signUser = async (req: Request, res: Response, next: NextFunction) 
     await databaseService.connect();
 
     try {
-        console.log(userData.email, userData.password);
         const user: User | null = await UserModel.findOne({
             email: userData.email,
             password: userData.password,
