@@ -5,7 +5,7 @@ import { UserModel, User } from '../models/User';
 import jwt from 'jsonwebtoken';
 import DatabaseService from '../services/DatabaseService';
 
-export const signUser = async (req: Request, res: Response, next: NextFunction) => {
+export const signInUser = async (req: Request, res: Response, next: NextFunction) => {
     const userData: userSignBody = req.body;
 
     const databaseService = new DatabaseService();
