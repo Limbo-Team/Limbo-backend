@@ -28,8 +28,9 @@ export const signUser = async (req: Request, res: Response, next: NextFunction) 
 
         const signToken: string = jwt.sign(userDataToHash, process.env.ACCESS_TOKEN_SECRET as string);
 
-        return res.cookie('authToken', signToken).status(StatusCodes.OK).send({
+        return res.status(StatusCodes.OK).send({
             message: 'OK',
+            authToken: signToken,
         });
     } catch (error) {
         return res.status(StatusCodes.UNAUTHORIZED).json({
