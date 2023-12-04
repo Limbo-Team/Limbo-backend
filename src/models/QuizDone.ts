@@ -21,11 +21,13 @@ const quizDoneSchema = new mongoose.Schema({
         get: (date: Date) => {
             return new Date(new Date(date).toISOString().split('T')[0]);
         },
+        immutable: true,
     },
     createdAt: {
         type: Date,
         default: Date.now,
         required: false,
+        immutable: true,
     },
 });
 
