@@ -37,8 +37,8 @@ class DatabaseService {
             });
 
             const createdUser = await UserModel.create<User>({
-                name: 'Example name',
-                surname: 'Example surname',
+                firstName: 'Example name',
+                lastName: 'Example surname',
                 email: 'asd@asd.pl',
                 image: 'https://i.imgur.com/e8buxpa.jpeg',
                 points: 0,
