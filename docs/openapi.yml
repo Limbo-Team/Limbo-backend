@@ -34,13 +34,6 @@ paths:
                                 password:
                                     type: string
                                     example: password
-            parameters:
-                - in: header
-                  name: Authorization
-                  schema:
-                      type: string
-                      format: bearer
-                  required: true
             responses:
                 '200':
                     description: User signed in successfully.
@@ -116,7 +109,13 @@ paths:
                                         description: Human-readable message indicating successful logout.
                 '401':
                     description: Unauthorized. No valid JWT token was provided in the Authorization header.
-
+            parameters:
+                - in: header
+                  name: Authorization
+                  schema:
+                      type: string
+                      format: bearer
+                  required: true
     /user/chapters:
         get:
             tags:
@@ -142,6 +141,13 @@ paths:
                     description: Bad request. Check the request parameters.
                 '500':
                     description: Internal server error. Something went wrong on the server side.
+            parameters:
+                - in: header
+                  name: Authorization
+                  schema:
+                      type: string
+                      format: bearer
+                  required: true
 
     /user/stats:
         get:
@@ -168,6 +174,13 @@ paths:
                     description: Bad request. Check the request parameters.
                 '500':
                     description: Internal server error. Something went wrong on the server side.
+            parameters:
+                - in: header
+                  name: Authorization
+                  schema:
+                      type: string
+                      format: bearer
+                  required: true
 
     /user/info:
         get:
@@ -192,6 +205,13 @@ paths:
                     description: Bad request. Check the request parameters.
                 '500':
                     description: Internal server error. Something went wrong on the server side.
+            parameters:
+                - in: header
+                  name: Authorization
+                  schema:
+                      type: string
+                      format: bearer
+                  required: true
 
     /user/password:
         patch:
@@ -221,6 +241,13 @@ paths:
                     description: Bad request. Check the request parameters.
                 '500':
                     description: Internal server error. Something went wrong on the server side.
+            parameters:
+                - in: header
+                  name: Authorization
+                  schema:
+                      type: string
+                      format: bearer
+                  required: true
 
     /chapters:
         get:
@@ -246,6 +273,13 @@ paths:
                     description: Bad request. Check the request parameters.
                 '500':
                     description: Internal server error. Something went wrong on the server side.
+            parameters:
+                - in: header
+                  name: Authorization
+                  schema:
+                      type: string
+                      format: bearer
+                  required: true
 
     /chapters/{id}:
         get:
@@ -264,6 +298,12 @@ paths:
                   schema:
                       type: number
                       format: number
+                - in: header
+                  name: Authorization
+                  schema:
+                      type: string
+                      format: bearer
+                  required: true
             responses:
                 '201':
                     description: User allowed to get quizzes.
@@ -300,6 +340,12 @@ paths:
                   schema:
                       type: number
                       format: number
+                - in: header
+                  name: Authorization
+                  schema:
+                      type: string
+                      format: bearer
+                  required: true
             responses:
                 '201':
                     description: User allowed to get quiz.
@@ -341,3 +387,10 @@ paths:
                     description: Bad request. Check the request parameters.
                 '500':
                     description: Internal server error. Something went wrong on the server side.
+            parameters:
+                - in: header
+                  name: Authorization
+                  schema:
+                      type: string
+                      format: bearer
+                  required: true
