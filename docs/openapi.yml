@@ -1,282 +1,343 @@
 openapi: 3.0.0
 info:
-  version: 1.0.0
-  title: Limbo Quiz App API
-  description: API documentation for the Limbo quiz application on iOS and Android.
+    version: 1.0.0
+    title: Limbo Quiz App API
+    description: API documentation for the Limbo quiz application on iOS and Android.
+
+components:
+    securitySchemes:
+        Authorization:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+            description: 'JWT Authorization header using the Bearer scheme. Example: "Bearer mytokenblabla"'
 
 paths:
-  /user/signin:
-    post:
-      tags:
-        - user
-      summary: Sign in user
-      description: |
-        This endpoint allows to sign in to user account by providing the necessary information.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  format: email
-                password:
-                  type: string
-      responses:
-        "201":
-          description: User signed in successfully.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-        "400":
-          description: Bad request. Check the request parameters.
-        "401":
-          description: Unauthorized. Incorrect username or password.
-        "500":
-          description: Internal server error. Something went wrong on the server side.
+    /user/signin:
+        post:
+            tags:
+                - User
+            summary: Sign in user
+            description: |
+                This endpoint allows to sign in to user account by providing the necessary information.
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                email:
+                                    type: string
+                                    format: email
+                                    example: admin@admin.com
+                                password:
+                                    type: string
+                                    example: password
+            parameters:
+                - in: header
+                  name: Authorization
+                  schema:
+                      type: string
+                      format: bearer
+                  required: true
+            responses:
+                '200':
+                    description: User signed in successfully.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    token:
+                                        type: string
+                                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+                '400':
+                    description: Bad request. Check the request parameters.
+                '401':
+                    description: Unauthorized. Incorrect username or password.
+                '403':
+                    description: Forbidden. The user might be authenticated but does not have permission to access this resource, or already signed in if that is not allowed.
+                '500':
+                    description: Internal server error. Something went wrong on the server side.
 
-  /user/signup:
-    post:
-      tags:
-        - user
-      summary: Register a new user account
-      description: |
-        This endpoint allows the registration of a new user account by providing the necessary information.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                firstName:
-                  type: string
-                surname:
-                  type: string
-                password:
-                  type: string
-                email:
-                  type: string
-                  format: email
-      responses:
-        "201":
-          description: User account registered successfully.
-        "400":
-          description: Bad request. Check the request parameters.
-        "500":
-          description: Internal server error. Something went wrong on the server side.
+    /user/signup:
+        post:
+            tags:
+                - User
+            summary: Register a new user account
+            description: |
+                This endpoint allows the registration of a new user account by providing the necessary information.
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                firstName:
+                                    type: string
+                                surname:
+                                    type: string
+                                password:
+                                    type: string
+                                email:
+                                    type: string
+                                    format: email
+            responses:
+                '201':
+                    description: User account registered successfully.
+                '400':
+                    description: Bad request. Check the request parameters.
+                '409':
+                    description: User already exists
+                '500':
+                    description: Internal server error. Something went wrong on the server side.
 
-  /user/chapters:
-    get:
-      tags:
-        - user
-      summary: Get a list of progress in chapters
-      description: |
-        This endpoint allows to fetch a list of progress in chapters.
-      responses:
-        "201":
-          description: User allowed to get chapters.
-          content:
-            application/json:
-              example:
-                - id: 1
-                  value: "Percentage"
-                - id: 2
-                  value: "Percentage"
-                - id: 3
-                  value: "Percentage"
-        "400":
-          description: Bad request. Check the request parameters.
-        "500":
-          description: Internal server error. Something went wrong on the server side.
+    /user/signout:
+        post:
+            tags:
+                - User
+            summary: Signs out the current user
+            operationId: logoutUser
+            security:
+                - bearerAuth: [] # Apply the Bearer authentication scheme to this operation
+            responses:
+                '200':
+                    description: User has been successfully signed out.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: 'User has been signed out successfully.'
+                                        description: Human-readable message indicating successful logout.
+                '401':
+                    description: Unauthorized. No valid JWT token was provided in the Authorization header.
 
-  /user/stats:
-    get:
-      tags:
-        - user
-      summary: Get a list of statistics
-      description: |
-        This endpoint allows to fetch a list of statistics.
-      responses:
-        "201":
-          description: User allowed to get stats.
-          content:
-            application/json:
-              example:
-                - id: 1
-                  value: "Some value 1"
-                - id: 2
-                  value: "Some value 2"
-                - id: 3
-                  value: "Some value 3"
-        "400":
-          description: Bad request. Check the request parameters.
-        "500":
-          description: Internal server error. Something went wrong on the server side.
+    /user/chapters:
+        get:
+            tags:
+                - User
+            summary: Get a list of progress in chapters
+            description: |
+                This endpoint allows to fetch a list of progress in chapters.
+            security:
+                - bearerAuth: []
+            responses:
+                '201':
+                    description: User allowed to get chapters.
+                    content:
+                        application/json:
+                            example:
+                                - id: 1
+                                  value: 'Percentage'
+                                - id: 2
+                                  value: 'Percentage'
+                                - id: 3
+                                  value: 'Percentage'
+                '400':
+                    description: Bad request. Check the request parameters.
+                '500':
+                    description: Internal server error. Something went wrong on the server side.
 
-  /user/info:
-    get:
-      tags:
-        - user
-      summary: Get a user info
-      description: |
-        This endpoint allows to fetch a user info.
-      responses:
-        "201":
-          description: User allowed to get stats.
-          content:
-            application/json:
-              example:
-                - name: Jan
-                  surname: Kowalski
-                  photo_URL: URL
-                  points: 32
-        "400":
-          description: Bad request. Check the request parameters.
-        "500":
-          description: Internal server error. Something went wrong on the server side.
+    /user/stats:
+        get:
+            tags:
+                - User
+            summary: Get a list of statistics
+            description: |
+                This endpoint allows to fetch a list of statistics.
+            security:
+                - bearerAuth: []
+            responses:
+                '201':
+                    description: User allowed to get stats.
+                    content:
+                        application/json:
+                            example:
+                                - id: 1
+                                  value: 'Some value 1'
+                                - id: 2
+                                  value: 'Some value 2'
+                                - id: 3
+                                  value: 'Some value 3'
+                '400':
+                    description: Bad request. Check the request parameters.
+                '500':
+                    description: Internal server error. Something went wrong on the server side.
 
-  /user/password:
-    patch:
-      tags:
-        - user
-      summary: Change user password
-      description: |
-        This endpoint allows to change user password.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                newPassword:
-                  type: string
-                oldPassword:
-                  type: string
+    /user/info:
+        get:
+            tags:
+                - User
+            summary: Get a user info
+            description: |
+                This endpoint allows to fetch a user info.
+            security:
+                - bearerAuth: []
+            responses:
+                '201':
+                    description: User allowed to get stats.
+                    content:
+                        application/json:
+                            example:
+                                - name: Jan
+                                  surname: Kowalski
+                                  photo_URL: URL
+                                  points: 32
+                '400':
+                    description: Bad request. Check the request parameters.
+                '500':
+                    description: Internal server error. Something went wrong on the server side.
 
-      responses:
-        "201":
-          description: Success.
-        "400":
-          description: Bad request. Check the request parameters.
-        "500":
-          description: Internal server error. Something went wrong on the server side.
+    /user/password:
+        patch:
+            tags:
+                - User
+            summary: Change user password
+            description: |
+                This endpoint allows to change user password.
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                newPassword:
+                                    type: string
+                                oldPassword:
+                                    type: string
 
-  /chapters:
-    get:
-      tags:
-        - chapters
-      summary: Get list of chapters
-      description: |
-        This endpoint allows to fetch a list of chapters.
-      responses:
-        "201":
-          description: User allowed to get stats.
-          content:
-            application/json:
-              example:
-                - chapterName: Pętle
-                  id: 123
-                - chapterName: Rekurencja
-                  id: 321
+            responses:
+                '201':
+                    description: Success.
+                '400':
+                    description: Bad request. Check the request parameters.
+                '500':
+                    description: Internal server error. Something went wrong on the server side.
 
-        "400":
-          description: Bad request. Check the request parameters.
-        "500":
-          description: Internal server error. Something went wrong on the server side.
+    /chapters:
+        get:
+            tags:
+                - Chapters
+            summary: Get list of chapters
+            description: |
+                This endpoint allows to fetch a list of chapters.
+            security:
+                - bearerAuth: []
+            responses:
+                '201':
+                    description: User allowed to get stats.
+                    content:
+                        application/json:
+                            example:
+                                - chapterName: Pętle
+                                  id: 123
+                                - chapterName: Rekurencja
+                                  id: 321
 
-  /chapters/{id}:
-    get:
-      tags:
-        - chapters
-      summary: Get chapter by id
-      description: |
-        This endpoint allows to fetch a chapter by id and return list of quizzes.
-      parameters:
-        - name: id
-          in: path
-          description: Chapter id
-          required: true
-          schema:
-            type: number
-            format: number
-      responses:
-        "201":
-          description: User allowed to get quizzes.
-          content:
-            application/json:
-              example:
-                - id: 182
-                  title: "Some title"
-                  photo_URL: URL
-                  prize: 32
-                - id: 183
-                  title: "Some title"
-                  photo_URL: URL
-                  prize: 30
-        "400":
-          description: Bad request. Check the request parameters.
-        "500":
-          description: Internal server error. Something went wrong on the server side.
+                '400':
+                    description: Bad request. Check the request parameters.
+                '500':
+                    description: Internal server error. Something went wrong on the server side.
 
-  /chapters/{id}/quiz/{id}:
-    get:
-      tags:
-        - chapters
-      summary: Get quiz by id
-      description: |
-        This endpoint allows to fetch a quiz by id and return list of questions.
-      parameters:
-        - name: id
-          in: path
-          description: Chapter id
-          required: true
-          schema:
-            type: number
-            format: number
-      responses:
-        "201":
-          description: User allowed to get quiz.
-          content:
-            application/json:
-              example:
-                - id: 182
-                  title: "Some title"
-                  content: "some content"
-        "400":
-          description: Bad request. Check the request parameters.
-        "500":
-          description: Internal server error. Something went wrong on the server side.
+    /chapters/{id}:
+        get:
+            tags:
+                - Chapters
+            summary: Get chapter by id
+            description: |
+                This endpoint allows to fetch a chapter by id and return list of quizzes.
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  description: Chapter id
+                  required: true
+                  schema:
+                      type: number
+                      format: number
+            responses:
+                '201':
+                    description: User allowed to get quizzes.
+                    content:
+                        application/json:
+                            example:
+                                - id: 182
+                                  title: 'Some title'
+                                  photo_URL: URL
+                                  prize: 32
+                                - id: 183
+                                  title: 'Some title'
+                                  photo_URL: URL
+                                  prize: 30
+                '400':
+                    description: Bad request. Check the request parameters.
+                '500':
+                    description: Internal server error. Something went wrong on the server side.
 
-  /prize:
-    post:
-      tags:
-        - prize
-      summary: Get prize for points
-      description: |
-        This endpoint allows to get prize for points.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                prizeId:
-                  type: number
-                  format: number
+    /chapters/{id}/quiz/{id}:
+        get:
+            tags:
+                - Chapters
+            summary: Get quiz by id
+            description: |
+                This endpoint allows to fetch a quiz by id and return list of questions.
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  description: Chapter id
+                  required: true
+                  schema:
+                      type: number
+                      format: number
+            responses:
+                '201':
+                    description: User allowed to get quiz.
+                    content:
+                        application/json:
+                            example:
+                                - id: 182
+                                  title: 'Some title'
+                                  content: 'some content'
+                '400':
+                    description: Bad request. Check the request parameters.
+                '500':
+                    description: Internal server error. Something went wrong on the server side.
 
-      responses:
-        "201":
-          description: Success.
-        "400":
-          description: Bad request. Check the request parameters.
-        "500":
-          description: Internal server error. Something went wrong on the server side.
+    /prize:
+        post:
+            tags:
+                - Prize
+            summary: Get prize for points
+            description: |
+                This endpoint allows to get prize for points.
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                prizeId:
+                                    type: number
+                                    format: number
+
+            responses:
+                '201':
+                    description: Success.
+                '400':
+                    description: Bad request. Check the request parameters.
+                '500':
+                    description: Internal server error. Something went wrong on the server side.

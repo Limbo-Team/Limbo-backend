@@ -4,10 +4,7 @@ import DatabaseService from '../services/DatabaseService';
 
 export const getExamplesCollection = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const databaseService = new DatabaseService();
-        await databaseService.connect();
-        const examplesCollection = await databaseService.getExamplesCollection();
-        await databaseService.disconnect();
+        const examplesCollection = await DatabaseService.getExamplesCollection();
         res.status(StatusCodes.OK).json(examplesCollection);
     } catch (error) {
         next(error);
@@ -16,10 +13,7 @@ export const getExamplesCollection = async (req: Request, res: Response, next: N
 
 export const addExample = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const databaseService = new DatabaseService();
-        await databaseService.connect();
-        await databaseService.addExample();
-        await databaseService.disconnect();
+        await DatabaseService.addExample();
         res.status(StatusCodes.CREATED).send('Example added to MongoDB database');
     } catch (error) {
         next(error);
