@@ -1,6 +1,6 @@
 import { User } from '../models/User';
 
-export type userSignBody = {
+export type UserSignInBody = {
     email: string;
     password: string;
 };

@@ -16,7 +16,7 @@ paths:
     /user/signin:
         post:
             tags:
-                - user
+                - User
             summary: Sign in user
             description: |
                 This endpoint allows to sign in to user account by providing the necessary information.
@@ -64,7 +64,7 @@ paths:
     /user/signup:
         post:
             tags:
-                - user
+                - User
             summary: Register a new user account
             description: |
                 This endpoint allows the registration of a new user account by providing the necessary information.
@@ -94,15 +94,17 @@ paths:
                 '500':
                     description: Internal server error. Something went wrong on the server side.
 
-    /user/logout:
+    /user/signout:
         post:
-            summary: Log out the current user
+            tags:
+                - User
+            summary: Signs out the current user
             operationId: logoutUser
             security:
                 - bearerAuth: [] # Apply the Bearer authentication scheme to this operation
             responses:
                 '200':
-                    description: User has been successfully logged out.
+                    description: User has been successfully signed out.
                     content:
                         application/json:
                             schema:
@@ -110,7 +112,7 @@ paths:
                                 properties:
                                     message:
                                         type: string
-                                        example: 'User has been logged out successfully.'
+                                        example: 'User has been signed out successfully.'
                                         description: Human-readable message indicating successful logout.
                 '401':
                     description: Unauthorized. No valid JWT token was provided in the Authorization header.
@@ -118,7 +120,7 @@ paths:
     /user/chapters:
         get:
             tags:
-                - user
+                - User
             summary: Get a list of progress in chapters
             description: |
                 This endpoint allows to fetch a list of progress in chapters.
@@ -144,7 +146,7 @@ paths:
     /user/stats:
         get:
             tags:
-                - user
+                - User
             summary: Get a list of statistics
             description: |
                 This endpoint allows to fetch a list of statistics.
@@ -170,7 +172,7 @@ paths:
     /user/info:
         get:
             tags:
-                - user
+                - User
             summary: Get a user info
             description: |
                 This endpoint allows to fetch a user info.
@@ -194,7 +196,7 @@ paths:
     /user/password:
         patch:
             tags:
-                - user
+                - User
             summary: Change user password
             description: |
                 This endpoint allows to change user password.
@@ -223,7 +225,7 @@ paths:
     /chapters:
         get:
             tags:
-                - chapters
+                - Chapters
             summary: Get list of chapters
             description: |
                 This endpoint allows to fetch a list of chapters.
@@ -248,7 +250,7 @@ paths:
     /chapters/{id}:
         get:
             tags:
-                - chapters
+                - Chapters
             summary: Get chapter by id
             description: |
                 This endpoint allows to fetch a chapter by id and return list of quizzes.
@@ -284,7 +286,7 @@ paths:
     /chapters/{id}/quiz/{id}:
         get:
             tags:
-                - chapters
+                - Chapters
             summary: Get quiz by id
             description: |
                 This endpoint allows to fetch a quiz by id and return list of questions.
@@ -315,7 +317,7 @@ paths:
     /prize:
         post:
             tags:
-                - prize
+                - Prize
             summary: Get prize for points
             description: |
                 This endpoint allows to get prize for points.

@@ -7,11 +7,14 @@ import errorHandler from './middlewares/errorHandler';
 import { appPort } from './config/environment';
 import healthcheckRouter from './routes/healthcheck';
 import userRouter from './routes/user';
-import cookieParser from 'cookie-parser';
+import DatabaseService from './services/DatabaseService';
 
 const app = express();
+(async () => {
+    await DatabaseService.connect();
+})();
+
 app.use(express.json());
-app.use(cookieParser());
 app.use(requestLogger);
 app.use(responseLogger);
 app.use('/healthcheck', healthcheckRouter);

@@ -94,4 +94,4 @@ class DatabaseService {
     }
 }
 
-export default DatabaseService;
+export default new DatabaseService();
