@@ -1,18 +1,17 @@
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { userSignBody } from '../types/userTypes';
-import { UserModel, User } from '../models/User';
+import { FetchedUser, userSignBody } from '../types/userTypes';
+import { UserModel } from '../models/User';
 import jwt from 'jsonwebtoken';
 import DatabaseService from '../services/DatabaseService';
 
 export const signInUser = async (req: Request, res: Response, next: NextFunction) => {
     const userData: userSignBody = req.body;
-
     const databaseService = new DatabaseService();
     await databaseService.connect();
 
     try {
-        const user: User | null = await UserModel.findOne({
+        const user: FetchedUser | null = await UserModel.findOne({
             email: userData.email,
             password: userData.password,
         });
@@ -23,7 +22,7 @@ export const signInUser = async (req: Request, res: Response, next: NextFunction
             });
         }
 
-        const userDataToHash = { email: user.email, password: user.password };
+        const userDataToHash = { id: user._id };
 
         const signToken: string = jwt.sign(userDataToHash, process.env.ACCESS_TOKEN_SECRET as string);
 
@@ -32,12 +31,11 @@ export const signInUser = async (req: Request, res: Response, next: NextFunction
             authToken: signToken,
         });
     } catch (error) {
-        return res.status(StatusCodes.UNAUTHORIZED).json({
-            message: 'user does not exists',
-        });
+        next(error);
     }
 };
 
+//TEST ONLY
 export const logoutUser = (req: Request, res: Response, next: NextFunction) => {
     return res.sendStatus(StatusCodes.OK);
 };
