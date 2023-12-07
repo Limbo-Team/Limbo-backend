@@ -77,7 +77,7 @@ paths:
                             properties:
                                 firstName:
                                     type: string
-                                surname:
+                                lastName:
                                     type: string
                                 password:
                                     type: string

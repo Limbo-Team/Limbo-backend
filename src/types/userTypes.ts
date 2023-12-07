@@ -5,6 +5,13 @@ export type UserSignInBody = {
     password: string;
 };
 
+export type UserSignUpBody = {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+};
+
 export interface FetchedUser extends User {
     _id: string;
     __v: number;

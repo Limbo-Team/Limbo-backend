@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { UserSignInBody } from '../types/userTypes';
+import { UserSignInBody, UserSignUpBody } from '../types/userTypes';
 import UserService from '../services/UserService';
 
 export const signInUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -17,6 +17,18 @@ export const signInUser = async (req: Request, res: Response, next: NextFunction
     }
 };
 
-export const signOutUser = (req: Request, res: Response, next: NextFunction) => {
+export const signOutUser = async (req: Request, res: Response, next: NextFunction) => {
     return res.sendStatus(StatusCodes.OK);
+};
+
+export const signUpUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userData: UserSignUpBody = req.body;
+        const userService = new UserService();
+
+        await userService.signUpUser(userData);
+        return res.sendStatus(StatusCodes.CREATED);
+    } catch (error) {
+        next(error);
+    }
 };

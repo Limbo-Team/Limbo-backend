@@ -1,13 +1,13 @@
 import mongoose, { InferSchemaType } from 'mongoose';
 
 const userSchema = new mongoose.Schema({
-    name: {
+    firstName: {
         type: String,
         required: true,
         minLength: 2,
         maxLength: 50,
     },
-    surname: {
+    lastName: {
         type: String,
         required: true,
         minLength: 2,
@@ -49,6 +49,11 @@ const userSchema = new mongoose.Schema({
         ref: 'Reward',
         required: false,
         default: [],
+    },
+    active: {
+        type: Boolean,
+        required: false,
+        default: false,
     },
     createdAt: {
         type: Date,
