@@ -4,6 +4,11 @@ import { FetchedUser, UserSignInBody, UserSignUpBody } from '../types/userTypes'
 import jwt from 'jsonwebtoken';
 import ApplicationError from '../utils/ApplicationError';
 import { accessTokenSecret } from '../config/environment';
+import { ChapterModel } from '../models/Chapter';
+import { ChapterDoneModel } from '../models/ChapterDone';
+import { QuizDoneModel } from '../models/QuizDone';
+import { QuizModel } from '../models/Quiz';
+import getUserIdFromToken from '../utils/getUserIdFromToken';
 
 class UserService {
     async signInUser(userData: UserSignInBody): Promise<string> {
@@ -38,6 +43,36 @@ class UserService {
         }
 
         await UserModel.create(userData);
+    }
+
+    async getUserChapters(authToken: string): Promise<object[]> {
+        const userId = getUserIdFromToken(authToken);
+
+        const chapters = await ChapterModel.find();
+        const chaptersDone = await ChapterDoneModel.find({ userId });
+        const quizzesDone = await QuizDoneModel.find({ userId });
+
+        const chapterDoneIds = chaptersDone.map((chapterDone) => chapterDone.chapterId.toString());
+        const quizDoneIds = quizzesDone.map((quizDone) => quizDone.quizId.toString());
+
+        const chaptersWithProgress = await Promise.all(
+            chapters.map(async (chapter) => {
+                const { _id: chapterId } = chapter;
+                const chapterQuizzes = await QuizModel.find({ chapterId });
+                const chapterQuizzesIds = chapterQuizzes.map(({ _id }) => _id.toString());
+
+                const isChapterDone = chapterDoneIds.includes(chapterId.toString());
+                const doneQuizzes = chapterQuizzesIds.filter((chapterQuizId) => quizDoneIds.includes(chapterQuizId));
+
+                return {
+                    chapterId,
+                    maximumQuizzes: chapterQuizzesIds.length,
+                    doneQuizzes: isChapterDone ? chapterQuizzesIds.length : doneQuizzes.length,
+                    percentage: isChapterDone ? 100 : Math.floor(doneQuizzes.length / chapterQuizzesIds.length) * 100,
+                };
+            }),
+        );
+        return chaptersWithProgress;
     }
 }
 

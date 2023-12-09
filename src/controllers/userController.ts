@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { UserSignInBody, UserSignUpBody } from '../types/userTypes';
 import UserService from '../services/UserService';
+import AuthenticationError from '../utils/AuthenticationError';
 
 export const signInUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -28,6 +29,21 @@ export const signUpUser = async (req: Request, res: Response, next: NextFunction
 
         await userService.signUpUser(userData);
         return res.sendStatus(StatusCodes.CREATED);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getUserChapters = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const authToken = req.headers.authorization;
+        if (!authToken) throw new AuthenticationError('No auth token provided');
+
+        const userService = new UserService();
+        console.info('authToken', authToken);
+        const userChapters = await userService.getUserChapters(authToken);
+
+        return res.status(StatusCodes.OK).json(userChapters);
     } catch (error) {
         next(error);
     }
