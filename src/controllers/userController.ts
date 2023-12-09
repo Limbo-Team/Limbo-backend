@@ -40,7 +40,6 @@ export const getUserChapters = async (req: Request, res: Response, next: NextFun
         if (!authToken) throw new AuthenticationError('No auth token provided');
 
         const userService = new UserService();
-        console.info('authToken', authToken);
         const userChapters = await userService.getUserChapters(authToken);
 
         return res.status(StatusCodes.OK).json(userChapters);
