@@ -5,8 +5,10 @@ import { authenticateToken } from '../middlewares/authHandler';
 const userRouter = Router();
 
 userRouter.post('/signin', signInUser);
-userRouter.post('/signout', authenticateToken, signOutUser);
 userRouter.post('/signup', signUpUser);
-userRouter.get('/chapters', authenticateToken, getUserChapters);
+
+userRouter.all('*', authenticateToken);
+userRouter.post('/signout', signOutUser);
+userRouter.get('/chapters', getUserChapters);
 
 export default userRouter;
