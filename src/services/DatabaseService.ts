@@ -50,21 +50,21 @@ class DatabaseService {
                 description: 'This is an example',
             });
 
-            const createdQuestion = await QuestionModel.create<Question>({
-                description: 'Example question',
-                answers: ['a', 'b', 'c', 'd'],
-                correctAnswerIndex: 0,
+            const createdChapter = await ChapterModel.create<Chapter>({
+                title: 'Example chapter',
             });
 
             const createdQuiz = await QuizModel.create<Quiz>({
                 title: 'Example quiz',
                 points: 100,
-                questions: [createdQuestion._id],
+                chapterId: createdChapter._id,
             });
 
-            const createdChapter = await ChapterModel.create<Chapter>({
-                title: 'Example chapter',
-                quizzes: [createdQuiz._id],
+            await QuestionModel.create<Question>({
+                description: 'Example question',
+                answers: ['a', 'b', 'c', 'd'],
+                correctAnswerIndex: 0,
+                quizId: createdQuiz._id,
             });
 
             await QuizDoneModel.create<QuizDone>({
