@@ -52,8 +52,8 @@ class UserService {
         const chaptersDone = await ChapterDoneModel.find({ userId });
         const quizzesDone = await QuizDoneModel.find({ userId });
 
-        const chapterDoneIds = chaptersDone.map((chapterDone) => chapterDone.chapterId.toString());
-        const quizDoneIds = quizzesDone.map((quizDone) => quizDone.quizId.toString());
+        const chapterDoneIds = chaptersDone.map(({ chapterId }) => chapterId.toString());
+        const quizDoneIds = quizzesDone.map(({ quizId }) => quizId.toString());
 
         const chaptersWithProgress = await Promise.all(
             chapters.map(async (chapter) => {
