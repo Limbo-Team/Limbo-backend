@@ -128,7 +128,7 @@ paths:
             security:
                 - Authorization: []
             responses:
-                '201':
+                '200':
                     description: User allowed to get chapters.
                     content:
                         application/json:
@@ -170,7 +170,7 @@ paths:
             security:
                 - Authorization: []
             responses:
-                '201':
+                '200':
                     description: User allowed to get stats.
                     content:
                         application/json:
@@ -204,7 +204,7 @@ paths:
             security:
                 - Authorization: []
             responses:
-                '201':
+                '200':
                     description: User allowed to get stats.
                     content:
                         application/json:
@@ -273,7 +273,7 @@ paths:
             security:
                 - Authorization: []
             responses:
-                '201':
+                '200':
                     description: User allowed to get stats.
                     content:
                         application/json:
@@ -321,7 +321,7 @@ paths:
                   example: '"Bearer your-jwt-token-here"'
                   required: true
             responses:
-                '201':
+                '200':
                     description: User allowed to get quizzes.
                     content:
                         application/json:
@@ -364,7 +364,7 @@ paths:
                   example: '"Bearer your-jwt-token-here"'
                   required: true
             responses:
-                '201':
+                '200':
                     description: User allowed to get quiz.
                     content:
                         application/json:
