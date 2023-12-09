@@ -11,6 +11,7 @@ components:
             scheme: bearer
             bearerFormat: JWT
             description: 'JWT Authorization header using the Bearer scheme. Example: "Bearer mytokenblabla"'
+            x-example: 'Bearer your-jwt-token-here'
 
 paths:
     /user/signin:
@@ -42,7 +43,7 @@ paths:
                             schema:
                                 type: object
                                 properties:
-                                    token:
+                                    authToken:
                                         type: string
                                         example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
                 '400':
@@ -94,7 +95,7 @@ paths:
             summary: Signs out the current user
             operationId: logoutUser
             security:
-                - bearerAuth: [] # Apply the Bearer authentication scheme to this operation
+                - Authorization: [] # Apply the Bearer authentication scheme to this operation
             responses:
                 '200':
                     description: User has been successfully signed out.
@@ -115,6 +116,7 @@ paths:
                   schema:
                       type: string
                       format: bearer
+                  example: '"Bearer your-jwt-token-here"'
                   required: true
     /user/chapters:
         get:
@@ -124,21 +126,29 @@ paths:
             description: |
                 This endpoint allows to fetch a list of progress in chapters.
             security:
-                - bearerAuth: []
+                - Authorization: []
             responses:
                 '201':
                     description: User allowed to get chapters.
                     content:
                         application/json:
                             example:
-                                - id: 1
-                                  value: 'Percentage'
-                                - id: 2
-                                  value: 'Percentage'
-                                - id: 3
-                                  value: 'Percentage'
+                                - chapterId: 1
+                                  maximumQuizzes: 15
+                                  doneQuizzes: 10
+                                  percentage: 66
+                                - chapterId: 2
+                                  maximumQuizzes: 7
+                                  doneQuizzes: 7
+                                  percentage: 100
+                                - chapterId: 3
+                                  maximumQuizzes: 10
+                                  doneQuizzes: 0
+                                  percentage: 0
                 '400':
                     description: Bad request. Check the request parameters.
+                '401':
+                    description: Invalid or none auth token provided.
                 '500':
                     description: Internal server error. Something went wrong on the server side.
             parameters:
@@ -147,6 +157,7 @@ paths:
                   schema:
                       type: string
                       format: bearer
+                  example: '"Bearer your-jwt-token-here"'
                   required: true
 
     /user/stats:
@@ -157,7 +168,7 @@ paths:
             description: |
                 This endpoint allows to fetch a list of statistics.
             security:
-                - bearerAuth: []
+                - Authorization: []
             responses:
                 '201':
                     description: User allowed to get stats.
@@ -180,6 +191,7 @@ paths:
                   schema:
                       type: string
                       format: bearer
+                  example: '"Bearer your-jwt-token-here"'                  
                   required: true
 
     /user/info:
@@ -190,7 +202,7 @@ paths:
             description: |
                 This endpoint allows to fetch a user info.
             security:
-                - bearerAuth: []
+                - Authorization: []
             responses:
                 '201':
                     description: User allowed to get stats.
@@ -211,6 +223,7 @@ paths:
                   schema:
                       type: string
                       format: bearer
+                  example: '"Bearer your-jwt-token-here"'
                   required: true
 
     /user/password:
@@ -221,7 +234,7 @@ paths:
             description: |
                 This endpoint allows to change user password.
             security:
-                - bearerAuth: []
+                - Authorization: []
             requestBody:
                 required: true
                 content:
@@ -247,6 +260,7 @@ paths:
                   schema:
                       type: string
                       format: bearer
+                  example: '"Bearer your-jwt-token-here"'
                   required: true
 
     /chapters:
@@ -257,7 +271,7 @@ paths:
             description: |
                 This endpoint allows to fetch a list of chapters.
             security:
-                - bearerAuth: []
+                - Authorization: []
             responses:
                 '201':
                     description: User allowed to get stats.
@@ -279,6 +293,7 @@ paths:
                   schema:
                       type: string
                       format: bearer
+                  example: '"Bearer your-jwt-token-here"'
                   required: true
 
     /chapters/{id}:
@@ -289,7 +304,7 @@ paths:
             description: |
                 This endpoint allows to fetch a chapter by id and return list of quizzes.
             security:
-                - bearerAuth: []
+                - Authorization: []
             parameters:
                 - name: id
                   in: path
@@ -303,6 +318,7 @@ paths:
                   schema:
                       type: string
                       format: bearer
+                  example: '"Bearer your-jwt-token-here"'
                   required: true
             responses:
                 '201':
@@ -331,7 +347,7 @@ paths:
             description: |
                 This endpoint allows to fetch a quiz by id and return list of questions.
             security:
-                - bearerAuth: []
+                - Authorization: []
             parameters:
                 - name: id
                   in: path
@@ -345,6 +361,7 @@ paths:
                   schema:
                       type: string
                       format: bearer
+                  example: '"Bearer your-jwt-token-here"'
                   required: true
             responses:
                 '201':
@@ -368,7 +385,7 @@ paths:
             description: |
                 This endpoint allows to get prize for points.
             security:
-                - bearerAuth: []
+                - Authorization: []
             requestBody:
                 required: true
                 content:
@@ -393,4 +410,5 @@ paths:
                   schema:
                       type: string
                       format: bearer
+                  example: '"Bearer your-jwt-token-here"'
                   required: true
