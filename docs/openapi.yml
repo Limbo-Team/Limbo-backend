@@ -160,6 +160,58 @@ paths:
                   example: '"Bearer your-jwt-token-here"'
                   required: true
 
+    /user/activity:
+        get:
+            tags:
+                - User
+            summary: Get a list of points achieved by user in a given time period
+            description: |
+                This endpoint allows to fetch a list of points achieved by user in a given time period. Period is inclusive in the lower bound (startDate) and exclusive in the upper bound.
+            security:
+                - Authorization: []
+            responses:
+                '200':
+                    description: User allowed to get activity list.
+                    content:
+                        application/json:
+                            example:
+                                - date: '2023-12-09T00:00:00.000Z'
+                                  points: 0
+                                - date: '2023-12-10T00:00:00.000Z'
+                                  points: 100
+                                - date: '2023-12-11T00:00:00.000Z'
+                                  points: 300
+                '400':
+                    description: Bad request. Check the request parameters.
+                '401':
+                    description: Invalid or none auth token provided.
+                '500':
+                    description: Internal server error. Something went wrong on the server side.
+            parameters:
+                - in: header
+                  name: Authorization
+                  schema:
+                      type: string
+                      format: bearer
+                  example: '"Bearer your-jwt-token-here"'
+                  required: true
+                - name: startDate
+                  in: query
+                  description: StartDate to filter by in american format (YYYY-MM-DD)
+                  required: false
+                  example: '2023-12-09'
+                  schema:
+                      type: string
+                      default: 'current date - 7 days'
+                - name: duration
+                  in: query
+                  description: Duration to filter by in days
+                  required: false
+                  example: 3
+                  schema:
+                      type: string
+                      default: 7
+
     /user/stats:
         get:
             tags:
@@ -191,7 +243,7 @@ paths:
                   schema:
                       type: string
                       format: bearer
-                  example: '"Bearer your-jwt-token-here"'                  
+                  example: '"Bearer your-jwt-token-here"'
                   required: true
 
     /user/info:

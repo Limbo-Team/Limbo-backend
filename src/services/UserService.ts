@@ -9,6 +9,7 @@ import { ChapterDoneModel } from '../models/ChapterDone';
 import { QuizDoneModel } from '../models/QuizDone';
 import { QuizModel } from '../models/Quiz';
 import getUserIdFromToken from '../utils/getUserIdFromToken';
+import { msInADay } from '../constants/constants';
 
 class UserService {
     async signInUser(userData: UserSignInBody): Promise<string> {
@@ -73,6 +74,38 @@ class UserService {
             }),
         );
         return chaptersWithProgress;
+    }
+
+    async getUserActivity(authToken: string, startDate: Date, duration: number): Promise<object[]> {
+        const userId = getUserIdFromToken(authToken);
+        const endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + duration);
+
+        const quizzesDone = await QuizDoneModel.find({
+            userId,
+            completedAt: { $gte: startDate, $lt: endDate },
+        });
+
+        const quizzes = await QuizModel.find({ _id: { $in: quizzesDone.map(({ quizId }) => quizId) } });
+        const userActivity = Array.from({ length: duration }, (_, index) => {
+            const date = new Date(startDate);
+            date.setDate(startDate.getDate() + index);
+            return {
+                date,
+                points: 0,
+            };
+        });
+
+        quizzesDone.forEach((quizDone) => {
+            const completeDate = quizDone.completedAt ? quizDone.completedAt : new Date();
+            const index = (completeDate.getTime() - startDate.getTime()) / msInADay;
+            const quiz = quizzes.find(({ _id }) => _id.toString() === quizDone.quizId.toString());
+
+            if (quiz) {
+                userActivity[index].points += quiz.points;
+            }
+        });
+        return userActivity;
     }
 }
 

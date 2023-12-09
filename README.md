@@ -8,3 +8,4 @@
     - signup
     - signout
     - chapters
+    - activity
