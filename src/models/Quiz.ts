@@ -13,11 +13,10 @@ const quizSchema = new mongoose.Schema({
         min: 0,
         max: 100,
     },
-    questions: {
-        type: [mongoose.Schema.Types.ObjectId],
-        required: false,
-        ref: 'Question',
-        default: [],
+    chapterId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Chapter',
+        required: true,
     },
     createdAt: {
         type: Date,

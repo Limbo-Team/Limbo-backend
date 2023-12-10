@@ -14,7 +14,6 @@ const quizDoneSchema = new mongoose.Schema({
     completedAt: {
         type: Date,
         default: Date.now,
-        required: false,
         set: (date: Date) => {
             return new Date(new Date(date).toISOString().split('T')[0]);
         },

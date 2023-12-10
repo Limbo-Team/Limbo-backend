@@ -25,9 +25,13 @@ const questionSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    quizId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Quiz',
+        required: true,
+    },
     createdAt: {
         type: Date,
-        required: false,
         default: Date.now,
         immutable: true,
     },

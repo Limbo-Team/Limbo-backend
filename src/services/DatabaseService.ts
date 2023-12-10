@@ -2,13 +2,13 @@ import mongoose from 'mongoose';
 import handleError from '../utils/handleError';
 import { Example, ExampleModel } from '../models/Example';
 import { mongoDBUri } from '../config/environment';
-import { UserModel, User } from '../models/User';
-import { Reward, RewardModel } from '../models/Reward';
-import { Chapter, ChapterModel } from '../models/Chapter';
-import { Quiz, QuizModel } from '../models/Quiz';
-import { Question, QuestionModel } from '../models/Question';
-import { QuizDone, QuizDoneModel } from '../models/QuizDone';
-import { ChapterDone, ChapterDoneModel } from '../models/ChapterDone';
+import { UserModel } from '../models/User';
+import { RewardModel } from '../models/Reward';
+import { ChapterModel } from '../models/Chapter';
+import { QuizModel } from '../models/Quiz';
+import { QuestionModel } from '../models/Question';
+import { QuizDoneModel } from '../models/QuizDone';
+import { ChapterDoneModel } from '../models/ChapterDone';
 
 class DatabaseService {
     async connect(): Promise<DatabaseService> {
@@ -32,11 +32,11 @@ class DatabaseService {
 
     async addExample(): Promise<void> {
         try {
-            await ExampleModel.create<Example>({
+            await ExampleModel.create({
                 name: 'Example',
             });
 
-            const createdUser = await UserModel.create<User>({
+            const createdUser = await UserModel.create({
                 firstName: 'Example name',
                 lastName: 'Example surname',
                 email: 'asd@asd.pl',
@@ -45,34 +45,34 @@ class DatabaseService {
                 password: 'asd',
             });
 
-            await RewardModel.create<Reward>({
+            await RewardModel.create({
                 cost: 1500,
                 description: 'This is an example',
             });
 
-            const createdQuestion = await QuestionModel.create<Question>({
+            const createdChapter = await ChapterModel.create({
+                title: 'Example chapter',
+            });
+
+            const createdQuiz = await QuizModel.create({
+                title: 'Example quiz',
+                points: 100,
+                chapterId: createdChapter._id,
+            });
+
+            await QuestionModel.create({
                 description: 'Example question',
                 answers: ['a', 'b', 'c', 'd'],
                 correctAnswerIndex: 0,
+                quizId: createdQuiz._id,
             });
 
-            const createdQuiz = await QuizModel.create<Quiz>({
-                title: 'Example quiz',
-                points: 100,
-                questions: [createdQuestion._id],
-            });
-
-            const createdChapter = await ChapterModel.create<Chapter>({
-                title: 'Example chapter',
-                quizzes: [createdQuiz._id],
-            });
-
-            await QuizDoneModel.create<QuizDone>({
+            await QuizDoneModel.create({
                 userId: createdUser._id,
                 quizId: createdQuiz._id,
             });
 
-            await ChapterDoneModel.create<ChapterDone>({
+            await ChapterDoneModel.create({
                 userId: createdUser._id,
                 chapterId: createdChapter._id,
             });
