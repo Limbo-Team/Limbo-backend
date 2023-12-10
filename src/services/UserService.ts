@@ -9,9 +9,14 @@ import { QuizDoneModel } from '../models/QuizDone';
 import { QuizModel } from '../models/Quiz';
 import { msInADay } from '../constants/constants';
 import { ObjectId } from 'mongodb';
+import {
+    GetUserActivityResponse,
+    GetUserChaptersResponse,
+    SignInUserResponse,
+} from '../types/response-types/userResponseTypes';
 
 class UserService {
-    async signInUser(userData: UserSignInBody): Promise<string> {
+    async signInUser(userData: UserSignInBody): Promise<SignInUserResponse> {
         if (!userData || !userData.email || !userData.password)
             throw new ApplicationError('Invalid user data', StatusCodes.BAD_REQUEST);
 
@@ -25,9 +30,11 @@ class UserService {
         }
 
         const userDataToHash = { id: user._id };
-        const signToken: string = jwt.sign(userDataToHash, accessTokenSecret as string);
+        const authToken: string = jwt.sign(userDataToHash, accessTokenSecret as string);
 
-        return signToken;
+        return {
+            authToken,
+        };
     }
 
     async signUpUser(userData: UserSignUpBody): Promise<void> {
@@ -45,7 +52,7 @@ class UserService {
         await UserModel.create(userData);
     }
 
-    async getUserChapters(userId: ObjectId): Promise<object[]> {
+    async getUserChapters(userId: ObjectId): Promise<GetUserChaptersResponse> {
         const chapters = await ChapterModel.find();
         const quizzesDone = await QuizDoneModel.find({ userId });
 
@@ -70,7 +77,7 @@ class UserService {
         return chaptersWithProgress;
     }
 
-    async getUserActivity(userId: ObjectId, startDate: Date, duration: number): Promise<object[]> {
+    async getUserActivity(userId: ObjectId, startDate: Date, duration: number): Promise<GetUserActivityResponse> {
         const endDate = new Date(startDate);
         endDate.setDate(startDate.getDate() + duration);
 
@@ -80,9 +87,10 @@ class UserService {
         });
 
         const quizzes = await QuizModel.find({ _id: { $in: quizzesDone.map(({ quizId }) => quizId) } });
-        const userActivity = Array.from({ length: duration }, (_, index) => {
+
+        const userActivity = Array.from({ length: duration }, (_, dayCounter) => {
             const date = new Date(startDate);
-            date.setDate(startDate.getDate() + index);
+            date.setDate(startDate.getDate() + dayCounter);
             return {
                 date,
                 points: 0,
@@ -90,7 +98,7 @@ class UserService {
         });
 
         quizzesDone.forEach((quizDone) => {
-            const completeDate = quizDone.completedAt ? quizDone.completedAt : new Date();
+            const completeDate = quizDone.completedAt;
             const index = (completeDate.getTime() - startDate.getTime()) / msInADay;
             const quiz = quizzes.find(({ _id }) => _id.toString() === quizDone.quizId.toString());
 
@@ -98,6 +106,7 @@ class UserService {
                 userActivity[index].points += quiz.points;
             }
         });
+
         return userActivity;
     }
 }

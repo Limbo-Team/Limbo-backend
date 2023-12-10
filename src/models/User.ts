@@ -23,9 +23,12 @@ const userSchema = new mongoose.Schema({
             message: (props: any) => `${props.value} is not a valid email.`,
         },
     },
-    image: {
+    password: {
         type: String,
         required: true,
+    },
+    image: {
+        type: String,
         default: 'https://i.imgur.com/e8buxpa.jpeg',
         validate: {
             validator: (value: string) => {
@@ -36,28 +39,20 @@ const userSchema = new mongoose.Schema({
     },
     points: {
         type: Number,
-        required: true,
         min: 0,
         default: 0,
-    },
-    password: {
-        type: String,
-        required: true,
     },
     rewards: {
         type: [mongoose.Schema.Types.ObjectId],
         ref: 'Reward',
-        required: false,
         default: [],
     },
     active: {
         type: Boolean,
-        required: false,
         default: false,
     },
     createdAt: {
         type: Date,
-        required: false,
         default: Date.now,
         immutable: true,
     },

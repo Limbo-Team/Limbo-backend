@@ -9,7 +9,6 @@ const chapterSchema = new mongoose.Schema({
     },
     createdAt: {
         type: Date,
-        required: false,
         default: Date.now,
         immutable: true,
     },
