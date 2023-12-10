@@ -202,7 +202,7 @@ paths:
                   example: '2023-12-09'
                   schema:
                       type: string
-                      default: 'current date - 7 days'
+                      default: 'current date - 6 days'
                 - name: duration
                   in: query
                   description: Duration to filter by in days
