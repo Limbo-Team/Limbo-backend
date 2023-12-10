@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { UserSignInBody, UserSignUpBody } from '../types/userTypes';
 import UserService from '../services/UserService';
-import AuthenticationError from '../utils/AuthenticationError';
 import { defaultDuration, defaultStartDate } from '../constants/constants';
 
 export const signInUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -29,6 +28,7 @@ export const signUpUser = async (req: Request, res: Response, next: NextFunction
         const userService = new UserService();
 
         await userService.signUpUser(userData);
+
         return res.sendStatus(StatusCodes.CREATED);
     } catch (error) {
         next(error);
@@ -37,11 +37,10 @@ export const signUpUser = async (req: Request, res: Response, next: NextFunction
 
 export const getUserChapters = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const authToken = req.headers.authorization;
-        if (!authToken) throw new AuthenticationError('No auth token provided');
-
+        const userId = res.locals.userId;
         const userService = new UserService();
-        const userChapters = await userService.getUserChapters(authToken);
+
+        const userChapters = await userService.getUserChapters(userId);
 
         return res.status(StatusCodes.OK).json(userChapters);
     } catch (error) {
@@ -51,15 +50,14 @@ export const getUserChapters = async (req: Request, res: Response, next: NextFun
 
 export const getUserActivity = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const authToken = req.headers.authorization;
-        if (!authToken) throw new AuthenticationError('No auth token provided');
+        const userId = res.locals.userId;
 
         const stringDate = req.query.startDate ? (req.query.startDate as string) : defaultStartDate.toISOString();
         const startDate = new Date(stringDate.split('T')[0]);
         const duration = req.query.duration ? parseInt(req.query.duration as string) : defaultDuration;
 
         const userService = new UserService();
-        const userActivity = await userService.getUserActivity(authToken, startDate, duration);
+        const userActivity = await userService.getUserActivity(userId, startDate, duration);
 
         return res.status(StatusCodes.OK).json(userActivity);
     } catch (error) {

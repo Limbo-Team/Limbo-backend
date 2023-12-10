@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import AuthenticationError from '../utils/AuthenticationError';
 import { accessTokenSecret } from '../config/environment';
+import getUserIdFromToken from '../utils/getUserIdFromToken';
 
 export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -19,6 +20,7 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
                 throw new AuthenticationError('Invalid token');
             }
         });
+        res.locals.userId = getUserIdFromToken(token);
         next();
     } catch (error) {
         next(error);

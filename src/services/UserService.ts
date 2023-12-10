@@ -5,11 +5,10 @@ import jwt from 'jsonwebtoken';
 import ApplicationError from '../utils/ApplicationError';
 import { accessTokenSecret } from '../config/environment';
 import { ChapterModel } from '../models/Chapter';
-import { ChapterDoneModel } from '../models/ChapterDone';
 import { QuizDoneModel } from '../models/QuizDone';
 import { QuizModel } from '../models/Quiz';
-import getUserIdFromToken from '../utils/getUserIdFromToken';
 import { msInADay } from '../constants/constants';
+import { ObjectId } from 'mongodb';
 
 class UserService {
     async signInUser(userData: UserSignInBody): Promise<string> {
@@ -46,14 +45,10 @@ class UserService {
         await UserModel.create(userData);
     }
 
-    async getUserChapters(authToken: string): Promise<object[]> {
-        const userId = getUserIdFromToken(authToken);
-
+    async getUserChapters(userId: ObjectId): Promise<object[]> {
         const chapters = await ChapterModel.find();
-        const chaptersDone = await ChapterDoneModel.find({ userId });
         const quizzesDone = await QuizDoneModel.find({ userId });
 
-        const chapterDoneIds = chaptersDone.map(({ chapterId }) => chapterId.toString());
         const quizDoneIds = quizzesDone.map(({ quizId }) => quizId.toString());
 
         const chaptersWithProgress = await Promise.all(
@@ -62,22 +57,20 @@ class UserService {
                 const chapterQuizzes = await QuizModel.find({ chapterId });
                 const chapterQuizzesIds = chapterQuizzes.map(({ _id }) => _id.toString());
 
-                const isChapterDone = chapterDoneIds.includes(chapterId.toString());
                 const doneQuizzes = chapterQuizzesIds.filter((chapterQuizId) => quizDoneIds.includes(chapterQuizId));
 
                 return {
                     chapterId,
                     maximumQuizzes: chapterQuizzesIds.length,
-                    doneQuizzes: isChapterDone ? chapterQuizzesIds.length : doneQuizzes.length,
-                    percentage: isChapterDone ? 100 : Math.floor(doneQuizzes.length / chapterQuizzesIds.length) * 100,
+                    doneQuizzes: doneQuizzes.length,
+                    percentage: Math.floor(doneQuizzes.length / chapterQuizzesIds.length) * 100,
                 };
             }),
         );
         return chaptersWithProgress;
     }
 
-    async getUserActivity(authToken: string, startDate: Date, duration: number): Promise<object[]> {
-        const userId = getUserIdFromToken(authToken);
+    async getUserActivity(userId: ObjectId, startDate: Date, duration: number): Promise<object[]> {
         const endDate = new Date(startDate);
         endDate.setDate(startDate.getDate() + duration);
 
