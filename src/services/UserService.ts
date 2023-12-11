@@ -60,7 +60,7 @@ class UserService {
 
         const chaptersWithProgress = await Promise.all(
             chapters.map(async (chapter) => {
-                const { _id: chapterId } = chapter;
+                const { _id: chapterId, title: chapterTitle } = chapter;
                 const chapterQuizzes = await QuizModel.find({ chapterId });
                 const chapterQuizzesIds = chapterQuizzes.map(({ _id }) => _id.toString());
 
@@ -68,6 +68,7 @@ class UserService {
 
                 return {
                     chapterId,
+                    chapterTitle,
                     maximumQuizzes: chapterQuizzesIds.length,
                     doneQuizzes: doneQuizzes.length,
                     percentage: Math.floor(doneQuizzes.length / chapterQuizzesIds.length) * 100,

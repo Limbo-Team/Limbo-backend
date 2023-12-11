@@ -134,14 +134,17 @@ paths:
                         application/json:
                             example:
                                 - chapterId: 1
+                                  chapterTitle: 'Pętle'
                                   maximumQuizzes: 15
                                   doneQuizzes: 10
                                   percentage: 66
                                 - chapterId: 2
+                                  chapterTitle: 'Rekurencja'
                                   maximumQuizzes: 7
                                   doneQuizzes: 7
                                   percentage: 100
                                 - chapterId: 3
+                                  chapterTitle: 'Tablice'
                                   maximumQuizzes: 10
                                   doneQuizzes: 0
                                   percentage: 0
