@@ -15,10 +15,18 @@ export type GetUserActivityResponse = {
 
 export type SignInUserResponse = {
     authToken: string;
-};
+} & GetUserInfoResponse;
 
 export type GetUserStatsResponse = {
     chaptersDone: number;
     quizzesDone: number;
     userRewards: string[];
+};
+
+export type GetUserInfoResponse = {
+    firstName: string;
+    lastName: string;
+    email: string;
+    image: string;
+    points: number;
 };

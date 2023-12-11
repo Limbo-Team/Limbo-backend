@@ -6,6 +6,7 @@ import {
     getUserChapters,
     getUserActivity,
     getUserStats,
+    getUserInfo,
 } from '../controllers/userController';
 import { authenticateToken } from '../middlewares/authHandler';
 
@@ -19,5 +20,6 @@ userRouter.post('/signout', signOutUser);
 userRouter.get('/chapters', getUserChapters);
 userRouter.get('/activity', getUserActivity);
 userRouter.get('/stats', getUserStats);
+userRouter.get('/info', getUserInfo);
 
 export default userRouter;

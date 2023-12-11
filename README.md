@@ -10,3 +10,4 @@
     - chapters
     - activity
     - stats
+    - info

@@ -75,3 +75,16 @@ export const getUserStats = async (req: Request, res: Response, next: NextFuncti
         next(error);
     }
 };
+
+export const getUserInfo = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userId = res.locals.userId;
+        const userService = new UserService();
+
+        const userInfo = await userService.getUserInfo(userId);
+
+        return res.status(StatusCodes.OK).json(userInfo);
+    } catch (error) {
+        next(error);
+    }
+};
