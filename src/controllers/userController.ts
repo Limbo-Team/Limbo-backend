@@ -62,3 +62,16 @@ export const getUserActivity = async (req: Request, res: Response, next: NextFun
         next(error);
     }
 };
+
+export const getUserStats = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userId = res.locals.userId;
+        const userService = new UserService();
+
+        const userStats = await userService.getUserStats(userId);
+
+        return res.status(StatusCodes.OK).json(userStats);
+    } catch (error) {
+        next(error);
+    }
+};

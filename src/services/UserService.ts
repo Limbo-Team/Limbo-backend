@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
-import { UserModel } from '../models/User';
+import { User, UserModel } from '../models/User';
 import { FetchedUser, UserSignInBody, UserSignUpBody } from '../types/userTypes';
 import jwt from 'jsonwebtoken';
 import ApplicationError from '../utils/ApplicationError';
@@ -12,8 +12,11 @@ import { ObjectId } from 'mongodb';
 import {
     GetUserActivityResponse,
     GetUserChaptersResponse,
+    GetUserStatsResponse,
     SignInUserResponse,
 } from '../types/response-types/userResponseTypes';
+import { ChapterDoneModel } from '../models/ChapterDone';
+import { RewardModel } from '../models/Reward';
 
 class UserService {
     async signInUser(userData: UserSignInBody): Promise<SignInUserResponse> {
@@ -109,6 +112,24 @@ class UserService {
         });
 
         return userActivity;
+    }
+
+    async getUserStats(userId: ObjectId): Promise<GetUserStatsResponse> {
+        const chaptersDone = await ChapterDoneModel.find({ userId });
+        const quizzesDone = await QuizDoneModel.find({ userId });
+
+        const user: User | null = await UserModel.findById(userId);
+        if (!user) throw new ApplicationError('User not found', StatusCodes.NOT_FOUND);
+
+        const userRewardIds = user.rewards.map(({ _id }) => _id) || [];
+        const userRewards = await RewardModel.find({ _id: { $in: userRewardIds } });
+        const userRewardDescriptions = userRewards.map(({ description }) => description);
+
+        return {
+            chaptersDone: chaptersDone.length,
+            quizzesDone: quizzesDone.length,
+            userRewards: userRewardDescriptions,
+        };
     }
 }
 

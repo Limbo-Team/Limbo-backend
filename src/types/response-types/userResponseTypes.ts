@@ -16,3 +16,9 @@ export type GetUserActivityResponse = {
 export type SignInUserResponse = {
     authToken: string;
 };
+
+export type GetUserStatsResponse = {
+    chaptersDone: number;
+    quizzesDone: number;
+    userRewards: string[];
+};

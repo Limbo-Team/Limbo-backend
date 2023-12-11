@@ -221,7 +221,7 @@ paths:
                 - User
             summary: Get a list of statistics
             description: |
-                This endpoint allows to fetch a list of statistics.
+                This endpoint allows to fetch a list of statistics: number of chapters done, quizzes done and descriptions of user rewards.
             security:
                 - Authorization: []
             responses:
@@ -230,14 +230,17 @@ paths:
                     content:
                         application/json:
                             example:
-                                - id: 1
-                                  value: 'Some value 1'
-                                - id: 2
-                                  value: 'Some value 2'
-                                - id: 3
-                                  value: 'Some value 3'
+                                - chaptersDone: 1
+                                  quizzesDone: 5
+                                  userRewards:
+                                    - 5 punktów dante
+                                    - 10 punktów dante                 
                 '400':
                     description: Bad request. Check the request parameters.
+                '401':
+                    description: Invalid or none auth token provided.
+                '404':
+                    description: User not found.
                 '500':
                     description: Internal server error. Something went wrong on the server side.
             parameters:
