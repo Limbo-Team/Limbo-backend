@@ -6,9 +6,12 @@
     "scripts": {
         "build": "npm install && npm run build-ts --silent",
         "build-ts": "tsc",
-        "dev": "concurrently \"npx tsc --watch\" \"node --env-file=.env --watch lib/app.js\"",
-        "start": "node --env-file=.env lib/app.js",
-        "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
+        "dev": "concurrently \"npx tsc --watch\" \"node --env-file=.env --watch lib/src/app.js\"",
+        "start": "node --env-file=.env lib/src/app.js",
+        "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+        "clear-database": "tsc scripts/clearDatabase.ts --outDir lib --sourceMap true && node --env-file=.env lib/scripts/clearDatabase.js",
+        "create-mock-database": "tsc scripts/createMockDatabase.ts --outDir lib --sourceMap true && node --env-file=.env lib/scripts/createMockDatabase.js",
+        "check-scripts": "tsc scripts/checkIfScriptsWork.ts --outDir lib --sourceMap true && node --env-file=.env lib/checkIfScriptsWork.js"
     },
     "author": "Limbo-team",
     "license": "ISC",

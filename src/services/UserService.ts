@@ -83,7 +83,7 @@ class UserService {
                     chapterTitle,
                     maximumQuizzes: chapterQuizzesIds.length,
                     doneQuizzes: doneQuizzes.length,
-                    percentage: Math.floor(doneQuizzes.length / chapterQuizzesIds.length) * 100,
+                    percentage: Math.floor((doneQuizzes.length / chapterQuizzesIds.length) * 100),
                 };
             }),
         );
