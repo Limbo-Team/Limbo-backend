@@ -46,12 +46,30 @@ paths:
                                     authToken:
                                         type: string
                                         example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+                                    firstName:
+                                        type: string
+                                        example: John
+                                    lastName:
+                                        type: string
+                                        example: Doe
+                                    email:
+                                        type: string
+                                        format: email
+                                        example: '2115@edu.p.lodz.pl'
+                                    image:
+                                        type: string
+                                        example: 'https://i.imgur.com/4QF3nZu.png'
+                                    points:
+                                        type: number
+                                        example: 0
                 '400':
                     description: Bad request. Check the request parameters.
                 '401':
                     description: Unauthorized. Incorrect username or password.
                 '403':
                     description: Forbidden. The user might be authenticated but does not have permission to access this resource, or already signed in if that is not allowed.
+                '404':
+                    description: User not found.
                 '500':
                     description: Internal server error. Something went wrong on the server side.
 
@@ -71,13 +89,17 @@ paths:
                             properties:
                                 firstName:
                                     type: string
+                                    example: John
                                 lastName:
                                     type: string
+                                    example: Doe
                                 password:
                                     type: string
+                                    example: password
                                 email:
                                     type: string
                                     format: email
+                                    example: '2115@edu.p.lodz.pl'
             responses:
                 '201':
                     description: User account registered successfully.
@@ -134,17 +156,17 @@ paths:
                         application/json:
                             example:
                                 - chapterId: 1
-                                  chapterTitle: 'Pętle'
+                                  chapterTitle: 'Loops'
                                   maximumQuizzes: 15
                                   doneQuizzes: 10
                                   percentage: 66
                                 - chapterId: 2
-                                  chapterTitle: 'Rekurencja'
+                                  chapterTitle: 'Recursion'
                                   maximumQuizzes: 7
                                   doneQuizzes: 7
                                   percentage: 100
                                 - chapterId: 3
-                                  chapterTitle: 'Tablice'
+                                  chapterTitle: 'Arrays'
                                   maximumQuizzes: 10
                                   doneQuizzes: 0
                                   percentage: 0
@@ -221,7 +243,7 @@ paths:
                 - User
             summary: Get a list of statistics
             description: |
-                This endpoint allows to fetch a list of statistics.
+                This endpoint allows to fetch a list of statistics: number of chapters done, quizzes done and descriptions of user rewards.
             security:
                 - Authorization: []
             responses:
@@ -229,15 +251,28 @@ paths:
                     description: User allowed to get stats.
                     content:
                         application/json:
-                            example:
-                                - id: 1
-                                  value: 'Some value 1'
-                                - id: 2
-                                  value: 'Some value 2'
-                                - id: 3
-                                  value: 'Some value 3'
+                            schema:
+                                type: object
+                                properties:
+                                    chaptersDone:
+                                        type: number
+                                        example: 1
+                                    quizzesDone:
+                                        type: number
+                                        example: 5
+                                    userRewards:
+                                        type: array
+                                        items:
+                                            type: string
+                                        example:
+                                            - "Reward 1"
+                                            - "Reward 2"
                 '400':
                     description: Bad request. Check the request parameters.
+                '401':
+                    description: Invalid or none auth token provided.
+                '404':
+                    description: User not found.
                 '500':
                     description: Internal server error. Something went wrong on the server side.
             parameters:
@@ -263,13 +298,31 @@ paths:
                     description: User allowed to get stats.
                     content:
                         application/json:
-                            example:
-                                - name: Jan
-                                  surname: Kowalski
-                                  photo_URL: URL
-                                  points: 32
+                            schema:
+                                type: object
+                                properties:
+                                    firstName:
+                                        type: string
+                                        example: John
+                                    lastName:
+                                        type: string
+                                        example: Doe
+                                    email:
+                                        type: string
+                                        format: email
+                                        example: '2115@edu.p.lodz.pl'
+                                    image:
+                                        type: string
+                                        example: 'https://i.imgur.com/4QF3nZu.png'
+                                    points:
+                                        type: number
+                                        example: 0
                 '400':
                     description: Bad request. Check the request parameters.
+                '401':
+                    description: Invalid or none auth token provided.'
+                '404':
+                    description: User not found.
                 '500':
                     description: Internal server error. Something went wrong on the server side.
             parameters:

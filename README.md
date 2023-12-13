@@ -9,3 +9,5 @@
     - signout
     - chapters
     - activity
+    - stats
+    - info
