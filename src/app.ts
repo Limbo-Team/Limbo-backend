@@ -1,7 +1,6 @@
 import express from 'express';
 import requestLogger from './middlewares/requestLogger';
 import responseLogger from './middlewares/responseLogger';
-import exampleDBRouter from './routes/example';
 import errorLogger from './middlewares/errorLogger';
 import errorHandler from './middlewares/errorHandler';
 import { appPort } from './config/environment';
@@ -18,7 +17,6 @@ app.use(express.json());
 app.use(requestLogger);
 app.use(responseLogger);
 app.use('/healthcheck', healthcheckRouter);
-app.use('/exampledb', exampleDBRouter);
 app.use('/user', userRouter);
 app.use(errorLogger);
 app.use(errorHandler);
