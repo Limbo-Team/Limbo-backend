@@ -26,6 +26,7 @@
         "mongoose": "^8.0.3",
         "nodemailer": "^6.9.7",
         "npm": "^10.2.4",
+        "resend": "^2.0.0",
         "run": "^1.4.0"
     },
     "devDependencies": {

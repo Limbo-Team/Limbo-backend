@@ -442,15 +442,66 @@ paths:
                   example: '"Bearer your-jwt-token-here"'
                   required: true
 
-    /user/password:
+    /password/reset:
         patch:
             tags:
-                - User credentials
-            summary: Change user password
+                - Password
+            summary: send verification code to users email
             description: |
                 This endpoint allows to change user password.
-            security:
-                - Authorization: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                email:
+                                    type: string
+                                    format: email
+                                    example: 'example@gmail.com'
+
+            responses:
+                '201':
+                    description: Success.
+                '400':
+                    description: Bad request. Check the request parameters.
+                '500':
+                    description: Internal server error. Something went wrong on the server side.
+
+    /password/reset/verify:
+        patch:
+            tags:
+                - Password
+            summary: check verification code
+            description: |
+                This endpoint allows to change user password.
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                code:
+                                    type: string
+                                    example: 2134
+
+            responses:
+                '201':
+                    description: Success.
+                '400':
+                    description: Bad request. Check the request parameters.
+                '500':
+                    description: Internal server error. Something went wrong on the server side.
+
+    /password/reset/change:
+        patch:
+            tags:
+                - Password
+            summary: send verification code to users email
+            description: |
+                This endpoint allows to change user password.
             requestBody:
                 required: true
                 content:
@@ -460,8 +511,7 @@ paths:
                             properties:
                                 newPassword:
                                     type: string
-                                oldPassword:
-                                    type: string
+                                    example: 'password'
 
             responses:
                 '201':
@@ -470,14 +520,6 @@ paths:
                     description: Bad request. Check the request parameters.
                 '500':
                     description: Internal server error. Something went wrong on the server side.
-            parameters:
-                - in: header
-                  name: Authorization
-                  schema:
-                      type: string
-                      format: bearer
-                  example: '"Bearer your-jwt-token-here"'
-                  required: true
 
     /user/rewards/available:
         get:
