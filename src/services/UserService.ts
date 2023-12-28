@@ -10,14 +10,17 @@ import { QuizModel } from '../models/Quiz';
 import { msInADay } from '../constants/constants';
 import { ObjectId } from 'mongodb';
 import {
+    GetQuizQuestionsResponse,
     GetUserActivityResponse,
     GetUserChaptersResponse,
     GetUserInfoResponse,
+    GetUserQuizzesResponse,
     GetUserStatsResponse,
     SignInUserResponse,
 } from '../types/response-types/userResponseTypes';
 import { ChapterDoneModel } from '../models/ChapterDone';
 import { RewardModel } from '../models/Reward';
+import { QuestionModel } from '../models/Question';
 
 class UserService {
     async signInUser(userData: UserSignInBody): Promise<SignInUserResponse> {
@@ -154,6 +157,38 @@ class UserService {
             image,
             points,
         };
+    }
+
+    async getUserQuizzes(userId: ObjectId, chapterId: ObjectId): Promise<GetUserQuizzesResponse> {
+        const allQuizzes = await QuizModel.find({ chapterId });
+        const doneQuizzes = await QuizDoneModel.find({ userId });
+        const doneQuizzesIds = doneQuizzes.map(({ quizId }) => quizId.toString());
+
+        const quizzes = allQuizzes.map((quiz) => {
+            const { _id: quizId, title: quizTitle } = quiz;
+            const isDone = doneQuizzesIds.includes(quizId.toString());
+
+            return {
+                quizId,
+                quizTitle,
+                isDone,
+            };
+        });
+
+        return quizzes;
+    }
+
+    async getQuizQuestions(userId: ObjectId, quizId: ObjectId): Promise<GetQuizQuestionsResponse> {
+        const quizDone = await QuizDoneModel.findOne({ userId, quizId });
+        if (quizDone) throw new ApplicationError('Quiz already done', StatusCodes.CONFLICT);
+
+        const questions = await QuestionModel.find({ quizId });
+
+        return questions.map(({ _id: questionId, description, answers }) => ({
+            questionId,
+            description,
+            answers,
+        }));
     }
 }
 

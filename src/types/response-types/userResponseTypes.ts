@@ -30,3 +30,15 @@ export type GetUserInfoResponse = {
     image: string;
     points: number;
 };
+
+export type GetUserQuizzesResponse = {
+    quizId: ObjectId;
+    quizTitle: string;
+    isDone: boolean;
+}[];
+
+export type GetQuizQuestionsResponse = {
+    questionId: ObjectId;
+    description: string;
+    answers: string[];
+}[];

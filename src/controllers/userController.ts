@@ -3,6 +3,8 @@ import { StatusCodes } from 'http-status-codes';
 import { UserSignInBody, UserSignUpBody } from '../types/userTypes';
 import UserService from '../services/UserService';
 import { defaultDuration, defaultStartDate } from '../constants/constants';
+import ApplicationError from '../utils/ApplicationError';
+import { ObjectId } from 'mongodb';
 
 export const signInUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -84,6 +86,38 @@ export const getUserInfo = async (req: Request, res: Response, next: NextFunctio
         const userInfo = await userService.getUserInfo(userId);
 
         return res.status(StatusCodes.OK).json(userInfo);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getUserQuizzes = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        if (!req.params.chapterId) throw new ApplicationError('No chapter id provided', StatusCodes.BAD_REQUEST);
+
+        const chapterId = new ObjectId(req.params.chapterId as string);
+        const userId = res.locals.userId;
+        const userService = new UserService();
+
+        const quizzes = await userService.getUserQuizzes(userId, chapterId);
+
+        return res.status(StatusCodes.OK).json(quizzes);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getQuizQuestions = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        if (!req.params.quizId) throw new ApplicationError('No quiz id provided', StatusCodes.BAD_REQUEST);
+
+        const quizId = new ObjectId(req.params.quizId as string);
+        const userId = res.locals.userId;
+        const userService = new UserService();
+
+        const questions = await userService.getQuizQuestions(userId, quizId);
+
+        return res.status(StatusCodes.OK).json(questions);
     } catch (error) {
         next(error);
     }
