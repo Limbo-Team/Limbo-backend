@@ -155,17 +155,17 @@ paths:
                     content:
                         application/json:
                             example:
-                                - chapterId: 1
+                                - chapterId: "657af677df0ef993445d1477"
                                   chapterTitle: 'Loops'
                                   maximumQuizzes: 15
                                   doneQuizzes: 10
                                   percentage: 66
-                                - chapterId: 2
+                                - chapterId: "657af677df0ef993045d1278"
                                   chapterTitle: 'Recursion'
                                   maximumQuizzes: 7
                                   doneQuizzes: 7
                                   percentage: 100
-                                - chapterId: 3
+                                - chapterId: "657af677df0ef993045d1279"
                                   chapterTitle: 'Arrays'
                                   maximumQuizzes: 10
                                   doneQuizzes: 0
@@ -183,6 +183,114 @@ paths:
                       type: string
                       format: bearer
                   example: '"Bearer your-jwt-token-here"'
+                  required: true
+
+    /user/chapters/{chapterId}/quizzes:
+        get:
+            tags:
+                - User
+            summary: Get a list of progress in quizzes of chapter
+            description: |
+                This endpoint allows to fetch a list of progress in quizzes of a given chapter.
+            security:
+                - Authorization: []
+            responses:
+                '200':
+                    description: User allowed to get quizzes.
+                    content:
+                        application/json:
+                            example:
+                                - quizId: "657af677df0ef993045d1279"
+                                  quizTitle: 'Integers and Floats'
+                                  isDone: False
+                                - quizId: "657af677df0ef993045d6478"
+                                  quizTitle: 'Strings'
+                                  isDone: True
+                                - quizId: "657af677df0ef993445d1477"
+                                  quizTitle: 'Doubles, shorts and longs'
+                                  isDone: True
+                '400':
+                    description: Bad request. Check the request parameters.
+                '401':
+                    description: Invalid or none auth token provided.
+                '500':
+                    description: Internal server error. Something went wrong on the server side.
+            parameters:
+                - in: header
+                  name: Authorization
+                  schema:
+                      type: string
+                      format: bearer
+                  example: '"Bearer your-jwt-token-here"'
+                  required: true
+                - in: path
+                  name: chapterId
+                  schema:
+                      type: string
+                      format: string
+                  example: 657af676df0ef993045d1431
+                  required: true
+
+    /user/quizzes/{quizId}/questions:
+        get:
+            tags:
+                - User
+            summary: Get a list of questions in a quiz
+            description: |
+                This endpoint allows to fetch a list of questions in a given quiz
+            security:
+                - Authorization: []
+            responses:
+                '200':
+                    description: User allowed to get questions.
+                    content:
+                        application/json:
+                            example:
+                                - questionId: "657af677df0ef993045d6478"
+                                  description: "What is the main characteristic of a float?"
+                                  answers:
+                                    - "It can be positive or negative"
+                                    - "It can be a whole number"
+                                    - "It can be a decimal number"
+                                    - "It can be a fraction"
+
+                                - questionId: "657af677df0ef993045d1279"
+                                  description: "Why is 1.0 a float?"
+                                  answers:
+                                    - "Because it has a decimal point"
+                                    - "Because it is a whole number"
+                                    - "Because it is a fraction"
+                                    - "Because it is a negative number"
+
+                                - questionId: "657af677df0ef993445d1477"
+                                  description: "What is the result of 1 + 1?"
+                                  answers:
+                                    - "2"
+                                    - "3"
+                                    - "4"
+                                    - "5"
+                '400':
+                    description: Bad request. Check the request parameters.
+                '401':
+                    description: Invalid or none auth token provided.
+                '409':
+                    description: User already did that quiz.
+                '500':
+                    description: Internal server error. Something went wrong on the server side.
+            parameters:
+                - in: header
+                  name: Authorization
+                  schema:
+                      type: string
+                      format: bearer
+                  example: '"Bearer your-jwt-token-here"'
+                  required: true
+                - in: path
+                  name: quizId
+                  schema:
+                      type: string
+                      format: string
+                  example: 657af676df0ef993045d1431
                   required: true
 
     /user/activity:
@@ -265,8 +373,8 @@ paths:
                                         items:
                                             type: string
                                         example:
-                                            - "Reward 1"
-                                            - "Reward 2"
+                                            - 'Reward 1'
+                                            - 'Reward 2'
                 '400':
                     description: Bad request. Check the request parameters.
                 '401':
@@ -387,9 +495,9 @@ paths:
                         application/json:
                             example:
                                 - chapterName: Pętle
-                                  id: 123
+                                  id: "657af677df0ef993445d1477"
                                 - chapterName: Rekurencja
-                                  id: 321
+                                  id: "657af677df0ef993045d1278"
 
                 '400':
                     description: Bad request. Check the request parameters.
@@ -434,11 +542,11 @@ paths:
                     content:
                         application/json:
                             example:
-                                - id: 182
+                                - id: "657af677df0ef993045d6478"
                                   title: 'Some title'
                                   photo_URL: URL
                                   prize: 32
-                                - id: 183
+                                - id: "657af677df0ef993045d1279"
                                   title: 'Some title'
                                   photo_URL: URL
                                   prize: 30
@@ -477,7 +585,7 @@ paths:
                     content:
                         application/json:
                             example:
-                                - id: 182
+                                - id: "657af677df0ef993045d6478"
                                   title: 'Some title'
                                   content: 'some content'
                 '400':
