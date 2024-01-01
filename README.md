@@ -11,3 +11,5 @@
     - activity
     - stats
     - info
+    - chapters/{chapterId}/quizzes
+    - quizzes/{quizId}/questions
