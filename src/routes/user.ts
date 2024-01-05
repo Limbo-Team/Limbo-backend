@@ -7,6 +7,8 @@ import {
     getUserActivity,
     getUserStats,
     getUserInfo,
+    getUserQuizzes,
+    getQuizQuestions,
 } from '../controllers/userController';
 import { authenticateToken } from '../middlewares/authHandler';
 
@@ -21,5 +23,7 @@ userRouter.get('/chapters', getUserChapters);
 userRouter.get('/activity', getUserActivity);
 userRouter.get('/stats', getUserStats);
 userRouter.get('/info', getUserInfo);
+userRouter.get('/chapters/:chapterId/quizzes', getUserQuizzes);
+userRouter.get('/quizzes/:quizId/questions', getQuizQuestions);
 
 export default userRouter;
