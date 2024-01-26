@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongoose';
 import { User } from '../models/User';
 
 export type UserSignInBody = {
@@ -11,6 +12,11 @@ export type UserSignUpBody = {
     firstName: string;
     lastName: string;
 };
+
+export type AnswerQuizBody = {
+    questionId: ObjectId;
+    answer: string;
+}[];
 
 export interface FetchedUser extends User {
     _id: string;

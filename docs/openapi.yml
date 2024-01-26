@@ -494,13 +494,13 @@ paths:
                     description: User allowed to get a list of available rewards.
                     content:
                         application/json:
-                           example:
-                            - rewardId: '657af677df0ef993045d6478'
-                              rewardDescription: 'Reward 1'
-                              rewardCost: 100
-                            - rewardId: '657af677df0ef993045d1279'
-                              rewardDescription: 'Reward 2'
-                              rewardCost: 200
+                            example:
+                                - rewardId: '657af677df0ef993045d6478'
+                                  rewardDescription: 'Reward 1'
+                                  rewardCost: 100
+                                - rewardId: '657af677df0ef993045d1279'
+                                  rewardDescription: 'Reward 2'
+                                  rewardCost: 200
                 '401':
                     description: Invalid or none auth token provided.
                 '500':
@@ -557,3 +557,70 @@ paths:
                       format: bearer
                   example: '"Bearer your-jwt-token-here"'
                   required: true
+                - in: path
+                  name: rewardId
+                  required: true
+                  schema:
+                      type: string
+                  description: The ID of the reward to buy.
+                  example: 657af676df0ef993045d1431
+
+    /user/quizzes/{quizId}/answer:
+        post:
+            tags:
+                - User
+            summary: Answer a quiz with a given id
+            description: |
+                This endpoint allows answering a quiz with the specified quizId.
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        example:
+                            - questionId: '657af677df0ef993045d6478'
+                              answer: 'It can be a decimal number'
+                            - questionId: '657af677df0ef993045d1279'
+                              answer: 'Because it has a decimal point'
+                            - questionId: '657af677df0ef993445d1477'
+                              answer: '2'
+            responses:
+                '200':
+                    description: User signed in successfully.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    isCorrect:
+                                        type: boolean
+                                        example: true
+                                    newPoints:
+                                        type: number
+                                        example: 0
+                '400':
+                    description: Bad request. Check the request parameters.
+                '401':
+                    description: Unauthorized. Incorrect username or password.
+                '404':
+                    description: User or quiz not found.
+                '406':
+                    description: Incorrect answer body.
+                '409':
+                    description: User already did that quiz.
+                '500':
+                    description: Internal server error. Something went wrong on the server side.
+            parameters:
+                - in: header
+                  name: Authorization
+                  schema:
+                      type: string
+                      format: bearer
+                  example: '"Bearer your-jwt-token-here"'
+                  required: true
+                - in: path
+                  name: quizId
+                  required: true
+                  schema:
+                      type: string
+                  description: The ID of the quiz to answer.
+                  example: 657af676df0ef993045d1431

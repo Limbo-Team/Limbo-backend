@@ -52,3 +52,8 @@ export type GetUserAvailableRewardsResponse = {
 export type BuyUserRewardResponse = {
     newPoints: number;
 };
+
+export type AnswerQuizResponse = {
+    isCorrect: boolean;
+    newPoints: number;
+};

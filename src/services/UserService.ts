@@ -1,15 +1,16 @@
 import { StatusCodes } from 'http-status-codes';
 import { User, UserModel } from '../models/User';
-import { FetchedUser, UserSignInBody, UserSignUpBody } from '../types/userTypes';
+import { FetchedUser, AnswerQuizBody, UserSignInBody, UserSignUpBody } from '../types/userTypes';
 import jwt from 'jsonwebtoken';
 import ApplicationError from '../utils/ApplicationError';
 import { accessTokenSecret } from '../config/environment';
 import { ChapterModel } from '../models/Chapter';
-import { QuizDoneModel } from '../models/QuizDone';
-import { QuizModel } from '../models/Quiz';
+import { QuizDone, QuizDoneModel } from '../models/QuizDone';
+import { Quiz, QuizModel } from '../models/Quiz';
 import { msInADay } from '../constants/constants';
 import { ObjectId } from 'mongodb';
 import {
+    AnswerQuizResponse,
     BuyUserRewardResponse,
     GetQuizQuestionsResponse,
     GetUserActivityResponse,
@@ -225,6 +226,59 @@ class UserService {
 
         await UserModel.findByIdAndUpdate(userId, { $push: { rewards: rewardId }, $inc: { points: -reward.cost } });
         return { newPoints: user.points - reward.cost };
+    }
+
+    async answerQuiz(userId: ObjectId, quizId: ObjectId, answers: AnswerQuizBody): Promise<AnswerQuizResponse> {
+        const user: User | null = await UserModel.findById(userId);
+        if (!user) throw new ApplicationError('User not found', StatusCodes.NOT_FOUND);
+
+        const quizDone: QuizDone | null = await QuizDoneModel.findOne({ userId, quizId });
+        if (quizDone) throw new ApplicationError('Quiz already done', StatusCodes.CONFLICT);
+
+        const questions = await QuestionModel.find({ quizId });
+        const correctAnswers = questions.map(({ _id, correctAnswerIndex, answers }) => ({
+            questionId: _id,
+            correctAnswerIndex,
+            answers,
+        }));
+        const questionsIds = questions.map(({ _id }) => _id.toString());
+
+        if (answers.length !== correctAnswers.length)
+            throw new ApplicationError('Invalid number of answers', StatusCodes.NOT_ACCEPTABLE);
+
+        for (const { questionId, answer } of answers) {
+            if (questionId === undefined || answer === undefined)
+                throw new ApplicationError('Invalid answer', StatusCodes.NOT_ACCEPTABLE);
+
+            if (!questionsIds.includes(questionId.toString()))
+                throw new ApplicationError('Invalid question id', StatusCodes.NOT_ACCEPTABLE);
+
+            const correctAnswer = correctAnswers.find(({ questionId: correctQuestionId }) => {
+                return correctQuestionId.toString() === questionId.toString();
+            });
+
+            const answerIndex = correctAnswer?.answers.findIndex((correctAnswer) => correctAnswer === answer);
+
+            if (answerIndex !== correctAnswer?.correctAnswerIndex) {
+                return { isCorrect: false, newPoints: user.points };
+            }
+        }
+
+        const quiz: Quiz | null = await QuizModel.findById(quizId);
+        if (!quiz) throw new ApplicationError('Quiz not found', StatusCodes.NOT_FOUND);
+
+        const quizzesInChapter = await QuizModel.find({ chapterId: quiz.chapterId });
+        const quizzesDoneInChapter = await QuizDoneModel.find({
+            userId,
+            quizId: { $in: quizzesInChapter.map(({ _id }) => _id) },
+        });
+        if (quizzesDoneInChapter.length === quizzesInChapter.length - 1) {
+            await ChapterDoneModel.create({ userId, chapterId: quiz.chapterId });
+        }
+
+        await QuizDoneModel.create({ userId, quizId });
+        await UserModel.findByIdAndUpdate(userId, { $inc: { points: quiz.points } });
+        return { isCorrect: true, newPoints: user.points + quiz.points };
     }
 }
 
