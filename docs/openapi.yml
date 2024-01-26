@@ -155,17 +155,17 @@ paths:
                     content:
                         application/json:
                             example:
-                                - chapterId: "657af677df0ef993445d1477"
+                                - chapterId: '657af677df0ef993445d1477'
                                   chapterTitle: 'Loops'
                                   maximumQuizzes: 15
                                   doneQuizzes: 10
                                   percentage: 66
-                                - chapterId: "657af677df0ef993045d1278"
+                                - chapterId: '657af677df0ef993045d1278'
                                   chapterTitle: 'Recursion'
                                   maximumQuizzes: 7
                                   doneQuizzes: 7
                                   percentage: 100
-                                - chapterId: "657af677df0ef993045d1279"
+                                - chapterId: '657af677df0ef993045d1279'
                                   chapterTitle: 'Arrays'
                                   maximumQuizzes: 10
                                   doneQuizzes: 0
@@ -200,13 +200,13 @@ paths:
                     content:
                         application/json:
                             example:
-                                - quizId: "657af677df0ef993045d1279"
+                                - quizId: '657af677df0ef993045d1279'
                                   quizTitle: 'Integers and Floats'
                                   isDone: False
-                                - quizId: "657af677df0ef993045d6478"
+                                - quizId: '657af677df0ef993045d6478'
                                   quizTitle: 'Strings'
                                   isDone: True
-                                - quizId: "657af677df0ef993445d1477"
+                                - quizId: '657af677df0ef993445d1477'
                                   quizTitle: 'Doubles, shorts and longs'
                                   isDone: True
                 '400':
@@ -246,29 +246,29 @@ paths:
                     content:
                         application/json:
                             example:
-                                - questionId: "657af677df0ef993045d6478"
-                                  description: "What is the main characteristic of a float?"
+                                - questionId: '657af677df0ef993045d6478'
+                                  description: 'What is the main characteristic of a float?'
                                   answers:
-                                    - "It can be positive or negative"
-                                    - "It can be a whole number"
-                                    - "It can be a decimal number"
-                                    - "It can be a fraction"
+                                      - 'It can be positive or negative'
+                                      - 'It can be a whole number'
+                                      - 'It can be a decimal number'
+                                      - 'It can be a fraction'
 
-                                - questionId: "657af677df0ef993045d1279"
-                                  description: "Why is 1.0 a float?"
+                                - questionId: '657af677df0ef993045d1279'
+                                  description: 'Why is 1.0 a float?'
                                   answers:
-                                    - "Because it has a decimal point"
-                                    - "Because it is a whole number"
-                                    - "Because it is a fraction"
-                                    - "Because it is a negative number"
+                                      - 'Because it has a decimal point'
+                                      - 'Because it is a whole number'
+                                      - 'Because it is a fraction'
+                                      - 'Because it is a negative number'
 
-                                - questionId: "657af677df0ef993445d1477"
-                                  description: "What is the result of 1 + 1?"
+                                - questionId: '657af677df0ef993445d1477'
+                                  description: 'What is the result of 1 + 1?'
                                   answers:
-                                    - "2"
-                                    - "3"
-                                    - "4"
-                                    - "5"
+                                      - '2'
+                                      - '3'
+                                      - '4'
+                                      - '5'
                 '400':
                     description: Bad request. Check the request parameters.
                 '401':
@@ -466,7 +466,7 @@ paths:
             responses:
                 '201':
                     description: Success.
-                '400':
+                '401':
                     description: Bad request. Check the request parameters.
                 '500':
                     description: Internal server error. Something went wrong on the server side.
@@ -479,28 +479,30 @@ paths:
                   example: '"Bearer your-jwt-token-here"'
                   required: true
 
-    /chapters:
+    /user/rewards/available:
         get:
             tags:
-                - Chapters
-            summary: Get list of chapters
+                - User
+            summary: Get a list of rewards user can buy
             description: |
-                This endpoint allows to fetch a list of chapters.
+                This endpoint allows user to get a list of rewards to buy (reward with certain id can only be bought once).
             security:
                 - Authorization: []
+
             responses:
                 '200':
-                    description: User allowed to get stats.
+                    description: User allowed to get a list of available rewards.
                     content:
                         application/json:
-                            example:
-                                - chapterName: Pętle
-                                  id: "657af677df0ef993445d1477"
-                                - chapterName: Rekurencja
-                                  id: "657af677df0ef993045d1278"
-
-                '400':
-                    description: Bad request. Check the request parameters.
+                           example:
+                            - rewardId: '657af677df0ef993045d6478'
+                              rewardDescription: 'Reward 1'
+                              rewardCost: 100
+                            - rewardId: '657af677df0ef993045d1279'
+                              rewardDescription: 'Reward 2'
+                              rewardCost: 200
+                '401':
+                    description: Invalid or none auth token provided.
                 '500':
                     description: Internal server error. Something went wrong on the server side.
             parameters:
@@ -512,112 +514,39 @@ paths:
                   example: '"Bearer your-jwt-token-here"'
                   required: true
 
-    /chapters/{id}:
-        get:
-            tags:
-                - Chapters
-            summary: Get chapter by id
-            description: |
-                This endpoint allows to fetch a chapter by id and return list of quizzes.
-            security:
-                - Authorization: []
-            parameters:
-                - name: id
-                  in: path
-                  description: Chapter id
-                  required: true
-                  schema:
-                      type: number
-                      format: number
-                - in: header
-                  name: Authorization
-                  schema:
-                      type: string
-                      format: bearer
-                  example: '"Bearer your-jwt-token-here"'
-                  required: true
-            responses:
-                '200':
-                    description: User allowed to get quizzes.
-                    content:
-                        application/json:
-                            example:
-                                - id: "657af677df0ef993045d6478"
-                                  title: 'Some title'
-                                  photo_URL: URL
-                                  prize: 32
-                                - id: "657af677df0ef993045d1279"
-                                  title: 'Some title'
-                                  photo_URL: URL
-                                  prize: 30
-                '400':
-                    description: Bad request. Check the request parameters.
-                '500':
-                    description: Internal server error. Something went wrong on the server side.
-
-    /chapters/{id}/quiz/{id}:
-        get:
-            tags:
-                - Chapters
-            summary: Get quiz by id
-            description: |
-                This endpoint allows to fetch a quiz by id and return list of questions.
-            security:
-                - Authorization: []
-            parameters:
-                - name: id
-                  in: path
-                  description: Chapter id
-                  required: true
-                  schema:
-                      type: number
-                      format: number
-                - in: header
-                  name: Authorization
-                  schema:
-                      type: string
-                      format: bearer
-                  example: '"Bearer your-jwt-token-here"'
-                  required: true
-            responses:
-                '200':
-                    description: User allowed to get quiz.
-                    content:
-                        application/json:
-                            example:
-                                - id: "657af677df0ef993045d6478"
-                                  title: 'Some title'
-                                  content: 'some content'
-                '400':
-                    description: Bad request. Check the request parameters.
-                '500':
-                    description: Internal server error. Something went wrong on the server side.
-
-    /prize:
+    /user/rewards/{rewardId}:
         post:
             tags:
-                - Prize
-            summary: Get prize for points
+                - User
+            summary: Buy a reward with given id
             description: |
-                This endpoint allows to get prize for points.
+                This endpoint allows user to buy a reward (reward with certain id can only be bought once).
             security:
                 - Authorization: []
-            requestBody:
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            type: object
-                            properties:
-                                prizeId:
-                                    type: number
-                                    format: number
 
             responses:
                 '201':
-                    description: Success.
+                    description: User allowed to buy reward.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    newPoints:
+                                        type: number
+                                        example: 300
                 '400':
                     description: Bad request. Check the request parameters.
+                '401':
+                    description: Invalid or none auth token provided.
+                '403':
+                    description: User not found.
+                '404':
+                    description: Reward not found.
+                '405':
+                    description: Reward already bought.
+                '406':
+                    description: Not enough points to buy reward.
                 '500':
                     description: Internal server error. Something went wrong on the server side.
             parameters:

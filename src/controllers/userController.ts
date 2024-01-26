@@ -122,3 +122,32 @@ export const getQuizQuestions = async (req: Request, res: Response, next: NextFu
         next(error);
     }
 };
+
+export const getUserAvailableRewards = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userId = res.locals.userId;
+        const userService = new UserService();
+
+        const availableRewards = await userService.getUserAvailableRewards(userId);
+
+        return res.status(StatusCodes.OK).json(availableRewards);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const buyUserReward = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        if (!req.params.rewardId) throw new ApplicationError('No reward id provided', StatusCodes.BAD_REQUEST);
+
+        const rewardId = new ObjectId(req.params.rewardId as string);
+        const userId = res.locals.userId;
+        const userService = new UserService();
+
+        const newPoints = await userService.buyUserReward(userId, rewardId);
+
+        return res.status(StatusCodes.OK).json(newPoints);
+    } catch (error) {
+        next(error);
+    }
+};

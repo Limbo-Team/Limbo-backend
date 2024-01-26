@@ -10,8 +10,10 @@ import { QuizModel } from '../models/Quiz';
 import { msInADay } from '../constants/constants';
 import { ObjectId } from 'mongodb';
 import {
+    BuyUserRewardResponse,
     GetQuizQuestionsResponse,
     GetUserActivityResponse,
+    GetUserAvailableRewardsResponse,
     GetUserChaptersResponse,
     GetUserInfoResponse,
     GetUserQuizzesResponse,
@@ -19,7 +21,7 @@ import {
     SignInUserResponse,
 } from '../types/response-types/userResponseTypes';
 import { ChapterDoneModel } from '../models/ChapterDone';
-import { RewardModel } from '../models/Reward';
+import { Reward, RewardModel } from '../models/Reward';
 import { QuestionModel } from '../models/Question';
 
 class UserService {
@@ -189,6 +191,40 @@ class UserService {
             description,
             answers,
         }));
+    }
+
+    async getUserAvailableRewards(userId: ObjectId): Promise<GetUserAvailableRewardsResponse> {
+        const user: User | null = await UserModel.findById(userId);
+        if (!user) throw new ApplicationError('User not found', StatusCodes.NOT_FOUND);
+
+        const userRewardIds = user.rewards.map(({ _id }) => _id) || [];
+        const userAvailableRewards = await RewardModel.find({ _id: { $nin: userRewardIds } });
+
+        const availableRewards = userAvailableRewards.map(
+            ({ _id: rewardId, description: rewardDescription, cost: rewardCost }) => ({
+                rewardId,
+                rewardDescription,
+                rewardCost,
+            }),
+        );
+        return availableRewards;
+    }
+
+    async buyUserReward(userId: ObjectId, rewardId: ObjectId): Promise<BuyUserRewardResponse> {
+        const user: User | null = await UserModel.findById(userId);
+        if (!user) throw new ApplicationError('User not found', StatusCodes.FORBIDDEN);
+
+        const userRewardIds = user.rewards.map(({ _id }) => _id) || [];
+        if (userRewardIds.includes(rewardId))
+            throw new ApplicationError('Reward already bought', StatusCodes.METHOD_NOT_ALLOWED);
+
+        const reward: Reward | null = await RewardModel.findById(rewardId);
+        if (!reward) throw new ApplicationError('Reward not found', StatusCodes.NOT_FOUND);
+
+        if (user.points < reward.cost) throw new ApplicationError('Not enough points', StatusCodes.NOT_ACCEPTABLE);
+
+        await UserModel.findByIdAndUpdate(userId, { $push: { rewards: rewardId }, $inc: { points: -reward.cost } });
+        return { newPoints: user.points - reward.cost };
     }
 }
 

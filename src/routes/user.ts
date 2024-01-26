@@ -9,6 +9,8 @@ import {
     getUserInfo,
     getUserQuizzes,
     getQuizQuestions,
+    getUserAvailableRewards,
+    buyUserReward,
 } from '../controllers/userController';
 import { authenticateToken } from '../middlewares/authHandler';
 
@@ -25,5 +27,7 @@ userRouter.get('/stats', getUserStats);
 userRouter.get('/info', getUserInfo);
 userRouter.get('/chapters/:chapterId/quizzes', getUserQuizzes);
 userRouter.get('/quizzes/:quizId/questions', getQuizQuestions);
+userRouter.get('/rewards/available', getUserAvailableRewards);
+userRouter.post('/rewards/:rewardId', buyUserReward);
 
 export default userRouter;
