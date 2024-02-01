@@ -42,3 +42,18 @@ export type GetQuizQuestionsResponse = {
     description: string;
     answers: string[];
 }[];
+
+export type GetUserAvailableRewardsResponse = {
+    rewardId: ObjectId;
+    rewardDescription: string;
+    rewardCost: number;
+}[];
+
+export type BuyUserRewardResponse = {
+    newPoints: number;
+};
+
+export type AnswerQuizResponse = {
+    isCorrect: boolean;
+    newPoints: number;
+};

@@ -13,3 +13,6 @@
     - info
     - chapters/{chapterId}/quizzes
     - quizzes/{quizId}/questions
+    - rewards/available
+    - rewards/{rewardId}
+    - /quizzes/{quizId}/answer
