@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import ApplicationError from './ApplicationError';
 
-const handleError = (
+const toApplicationError = (
     error: unknown,
     message: string = 'Encountered an error',
     statusCode: number = StatusCodes.INTERNAL_SERVER_ERROR,
@@ -15,4 +15,4 @@ const handleError = (
     return new ApplicationError(message, statusCode);
 };
 
-export default handleError;
+export default toApplicationError;

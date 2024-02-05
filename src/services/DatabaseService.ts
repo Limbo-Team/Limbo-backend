@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import handleError from '../utils/handleError';
+import toApplicationError from '../utils/toApplicationError';
 import { mongoDBUri } from '../config/environment';
 import { UserModel } from '../models/User';
 import { RewardModel } from '../models/Reward';
@@ -19,7 +19,7 @@ class DatabaseService {
             console.info('🗄️ Connected to MongoDB');
             return this;
         } catch (error) {
-            throw handleError(error, 'Failed to connect to MongoDB');
+            throw toApplicationError(error, 'Failed to connect to MongoDB');
         }
     }
 
@@ -28,7 +28,7 @@ class DatabaseService {
             await mongoose.disconnect();
             console.info('🗄️ Disconnected from MongoDB');
         } catch (error) {
-            throw handleError(error, 'Failed to disconnect from MongoDB');
+            throw toApplicationError(error, 'Failed to disconnect from MongoDB');
         }
     }
 
@@ -122,7 +122,7 @@ class DatabaseService {
 
             console.info('🗄️ Added example to MongoDB');
         } catch (error) {
-            throw handleError(error, (error as any).message);
+            throw toApplicationError(error, (error as any).message);
         }
     }
 }

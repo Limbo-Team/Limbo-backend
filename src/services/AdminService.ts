@@ -3,7 +3,7 @@ import { Chapter, ChapterModel } from '../models/Chapter';
 import { Question, QuestionModel } from '../models/Question';
 import { Quiz, QuizModel } from '../models/Quiz';
 import { Reward, RewardModel } from '../models/Reward';
-import handleError from '../utils/handleError';
+import toApplicationError from '../utils/toApplicationError';
 import { User, UserModel } from '../models/User';
 
 class AdminService {
@@ -18,7 +18,7 @@ class AdminService {
                 password: user.password,
             });
         } catch (error) {
-            throw handleError(error, (error as any).message);
+            throw toApplicationError(error, (error as any).message);
         }
     }
 
@@ -30,7 +30,7 @@ class AdminService {
             });
             return rewardId;
         } catch (error) {
-            throw handleError(error, (error as any).message);
+            throw toApplicationError(error, (error as any).message);
         }
     }
 
@@ -41,7 +41,7 @@ class AdminService {
             });
             return chapterId;
         } catch (error) {
-            throw handleError(error, (error as any).message);
+            throw toApplicationError(error, (error as any).message);
         }
     }
 
@@ -54,7 +54,7 @@ class AdminService {
             });
             return quizId;
         } catch (error) {
-            throw handleError(error, (error as any).message);
+            throw toApplicationError(error, (error as any).message);
         }
     }
 
@@ -68,7 +68,7 @@ class AdminService {
             });
             return questionId;
         } catch (error) {
-            throw handleError(error, (error as any).message);
+            throw toApplicationError(error, (error as any).message);
         }
     }
 }

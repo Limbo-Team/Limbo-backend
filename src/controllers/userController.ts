@@ -115,7 +115,7 @@ export const getQuizQuestions = async (req: Request, res: Response, next: NextFu
         const userId = res.locals.userId;
         const userService = new UserService();
 
-        const questions = await userService.getQuizQuestions(userId, quizId);
+        const questions = await userService.getQuestionsForQuiz(userId, quizId);
 
         return res.status(StatusCodes.OK).json(questions);
     } catch (error) {
@@ -128,7 +128,7 @@ export const getUserAvailableRewards = async (req: Request, res: Response, next:
         const userId = res.locals.userId;
         const userService = new UserService();
 
-        const availableRewards = await userService.getUserAvailableRewards(userId);
+        const availableRewards = await userService.getAvailableRewardsToBuy(userId);
 
         return res.status(StatusCodes.OK).json(availableRewards);
     } catch (error) {

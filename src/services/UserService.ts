@@ -25,8 +25,7 @@ import { ChapterDoneModel } from '../models/ChapterDone';
 import { Reward, RewardModel } from '../models/Reward';
 import { QuestionModel } from '../models/Question';
 import DatabaseService from './DatabaseService';
-import handleError from '../utils/handleError';
-import { Document, PopulatedDoc } from 'mongoose';
+import toApplicationError from '../utils/toApplicationError';
 import Populated from '../utils/Populated';
 
 class UserService {
@@ -118,10 +117,10 @@ class UserService {
         }));
 
         quizzesDoneWithinGivenPeriod.forEach((quizDone) => {
-            const index = Math.floor((quizDone.completedAt.getTime() - startDate.getTime()) / msInADay);
-            const quiz = quizDone.quizId;
+            const indexOfTheDay = Math.floor((quizDone.completedAt.getTime() - startDate.getTime()) / msInADay);
+            const pointsForDoneQuiz = quizDone.quizId.points;
 
-            userActivity[index].points += quiz.points;
+            userActivity[indexOfTheDay].points += pointsForDoneQuiz;
         });
 
         return userActivity;
@@ -131,9 +130,7 @@ class UserService {
         const chaptersDone = await ChapterDoneModel.find({ userId });
         const quizzesDone = await QuizDoneModel.find({ userId });
 
-        const user: Populated<User, Reward[], 'rewards'> = await UserModel.findById({ userId }).populate<any>(
-            'rewards',
-        );
+        const user: Populated<User, Reward[], 'rewards'> = await UserModel.findById(userId).populate<any>('rewards');
         if (!user) {
             throw new ApplicationError('User not found', StatusCodes.NOT_FOUND);
         }
@@ -148,7 +145,7 @@ class UserService {
     }
 
     async getUserInfo(userId: ObjectId): Promise<GetUserInfoResponse> {
-        const user: User | null = await UserModel.findById({ userId });
+        const user: User | null = await UserModel.findById(userId);
         if (!user) {
             throw new ApplicationError('User not found', StatusCodes.NOT_FOUND);
         }
@@ -164,7 +161,6 @@ class UserService {
         };
     }
 
-    //TODO: Refactor
     async getUserQuizzes(userId: ObjectId, chapterId: ObjectId): Promise<GetUserQuizzesResponse> {
         const allQuizzes = await QuizModel.find({ chapterId });
         const doneQuizzes = await QuizDoneModel.find({ userId });
@@ -184,29 +180,25 @@ class UserService {
         return quizzes;
     }
 
-    //TODO: Refactor
-    async getQuizQuestions(userId: ObjectId, quizId: ObjectId): Promise<GetQuizQuestionsResponse> {
-        try {
-            await DatabaseService.checkIfQuizExists(quizId);
-            await this.checkIfQuizIsDoneByUser(userId, quizId);
-            const questions = await QuestionModel.find({ quizId });
+    async getQuestionsForQuiz(userId: ObjectId, quizId: ObjectId): Promise<GetQuizQuestionsResponse> {
+        await DatabaseService.checkIfQuizExists(quizId);
+        await this.checkIfQuizIsDoneByUser(userId, quizId);
+        const questions = await QuestionModel.find({ quizId });
 
-            return questions.map(({ _id: questionId, description, answers }) => ({
-                questionId,
-                description,
-                answers,
-            }));
-        } catch (error) {
-            throw handleError(error, (error as any).message);
-        }
+        return questions.map(({ _id: questionId, description, answers }) => ({
+            questionId,
+            description,
+            answers,
+        }));
     }
 
-    //TODO: Refactor
-    async getUserAvailableRewards(userId: ObjectId): Promise<GetUserAvailableRewardsResponse> {
+    async getAvailableRewardsToBuy(userId: ObjectId): Promise<GetUserAvailableRewardsResponse> {
         const user: User | null = await UserModel.findById(userId);
-        if (!user) throw new ApplicationError('User not found', StatusCodes.NOT_FOUND);
+        if (!user) {
+            throw new ApplicationError('User not found', StatusCodes.NOT_FOUND);
+        }
 
-        const userRewardIds = user.rewards.map(({ _id }) => _id) || [];
+        const userRewardIds = user.rewards.map(({ _id }) => _id);
         const userAvailableRewards = await RewardModel.find({ _id: { $nin: userRewardIds } });
 
         const availableRewards = userAvailableRewards.map(
@@ -301,7 +293,7 @@ class UserService {
             });
             return quizDoneId;
         } catch (error) {
-            throw handleError(error, (error as any).message);
+            throw toApplicationError(error, (error as any).message);
         }
     }
 
@@ -332,7 +324,7 @@ class UserService {
             });
             return chapterDoneId;
         } catch (error) {
-            throw handleError(error, (error as any).message);
+            throw toApplicationError(error, (error as any).message);
         }
     }
 
@@ -370,7 +362,7 @@ class UserService {
                 },
             );
         } catch (error) {
-            throw handleError(error, (error as any).message);
+            throw toApplicationError(error, (error as any).message);
         }
     }
 }
