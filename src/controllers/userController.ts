@@ -40,7 +40,7 @@ export const getUserChapters = async (req: Request, res: Response, next: NextFun
         const userId = res.locals.userId;
         const userService = new UserService();
 
-        const userChapters = await userService.getUserChapters(userId);
+        const userChapters = await userService.getUserChaptersProgress(userId);
 
         return res.status(StatusCodes.OK).json(userChapters);
     } catch (error) {

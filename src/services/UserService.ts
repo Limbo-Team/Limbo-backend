@@ -74,32 +74,35 @@ class UserService {
         await UserModel.create(userData);
     }
 
-    async getUserChapters(userId: ObjectId): Promise<GetUserChaptersResponse> {
-        const chapters = await ChapterModel.find();
-        const quizzesDone = await QuizDoneModel.find({ userId });
+    async getUserChaptersProgress(userId: ObjectId): Promise<GetUserChaptersResponse> {
+        const allChapters = await ChapterModel.find();
+        const allQuizzesDoneByUser = await QuizDoneModel.find({ userId });
 
-        const quizDoneIds = quizzesDone.map(({ quizId }) => quizId.toString());
+        const quizzesDoneIds = allQuizzesDoneByUser.map(({ quizId }) => quizId.toString());
 
         const chaptersWithProgress = await Promise.all(
-            chapters.map(async (chapter) => {
+            allChapters.map(async (chapter) => {
                 const { _id: chapterId, title: chapterTitle } = chapter;
-                const chapterQuizzes = await QuizModel.find({ chapterId });
-                const chapterQuizzesIds = chapterQuizzes.map(({ _id }) => _id.toString());
+                const quizzesForThisChapter = await QuizModel.find({ chapterId });
+                const quizIdsForThisChapter = quizzesForThisChapter.map(({ _id }) => _id.toString());
 
-                const doneQuizzes = chapterQuizzesIds.filter((chapterQuizId) => quizDoneIds.includes(chapterQuizId));
+                const doneQuizzesForThisChapter = quizIdsForThisChapter.filter((chapterQuizId) =>
+                    quizzesDoneIds.includes(chapterQuizId),
+                );
 
                 return {
                     chapterId,
                     chapterTitle,
-                    maximumQuizzes: chapterQuizzesIds.length,
-                    doneQuizzes: doneQuizzes.length,
-                    percentage: Math.floor((doneQuizzes.length / chapterQuizzesIds.length) * 100),
+                    maximumQuizzes: quizIdsForThisChapter.length,
+                    doneQuizzes: doneQuizzesForThisChapter.length,
+                    percentage: Math.floor((doneQuizzesForThisChapter.length / quizIdsForThisChapter.length) * 100),
                 };
             }),
         );
         return chaptersWithProgress;
     }
 
+    //TODO: Refactor
     async getUserActivity(userId: ObjectId, startDate: Date, duration: number): Promise<GetUserActivityResponse> {
         const endDate = new Date(startDate);
         endDate.setDate(startDate.getDate() + duration);
@@ -133,6 +136,7 @@ class UserService {
         return userActivity;
     }
 
+    //TODO: Refactor
     async getUserStats(userId: ObjectId): Promise<GetUserStatsResponse> {
         const chaptersDone = await ChapterDoneModel.find({ userId });
         const quizzesDone = await QuizDoneModel.find({ userId });
@@ -151,6 +155,7 @@ class UserService {
         };
     }
 
+    //TODO: Refactor
     async getUserInfo(userId: ObjectId): Promise<GetUserInfoResponse> {
         const user: User | null = await UserModel.findById(userId);
         if (!user) throw new ApplicationError('User not found', StatusCodes.NOT_FOUND);
@@ -166,6 +171,7 @@ class UserService {
         };
     }
 
+    //TODO: Refactor
     async getUserQuizzes(userId: ObjectId, chapterId: ObjectId): Promise<GetUserQuizzesResponse> {
         const allQuizzes = await QuizModel.find({ chapterId });
         const doneQuizzes = await QuizDoneModel.find({ userId });
@@ -185,6 +191,7 @@ class UserService {
         return quizzes;
     }
 
+    //TODO: Refactor
     async getQuizQuestions(userId: ObjectId, quizId: ObjectId): Promise<GetQuizQuestionsResponse> {
         try {
             await DatabaseService.checkIfQuizExists(quizId);
@@ -201,6 +208,7 @@ class UserService {
         }
     }
 
+    //TODO: Refactor
     async getUserAvailableRewards(userId: ObjectId): Promise<GetUserAvailableRewardsResponse> {
         const user: User | null = await UserModel.findById(userId);
         if (!user) throw new ApplicationError('User not found', StatusCodes.NOT_FOUND);
@@ -218,6 +226,7 @@ class UserService {
         return availableRewards;
     }
 
+    //TODO: Refactor
     async buyUserReward(userId: ObjectId, rewardId: ObjectId): Promise<BuyUserRewardResponse> {
         const user: User | null = await UserModel.findById(userId);
         if (!user) throw new ApplicationError('User not found', StatusCodes.FORBIDDEN);
@@ -235,6 +244,7 @@ class UserService {
         return { newPoints: user.points - reward.cost };
     }
 
+    //TODO: Refactor
     async answerQuiz(userId: ObjectId, quizId: ObjectId, answers: AnswerQuizBody): Promise<AnswerQuizResponse> {
         const user: User | null = await UserModel.findById(userId);
         if (!user) throw new ApplicationError('User not found', StatusCodes.NOT_FOUND);
@@ -288,6 +298,7 @@ class UserService {
         return { isCorrect: true, newPoints: user.points + quiz.points };
     }
 
+    //TODO: Refactor
     async finishQuizByUser(userId: ObjectId, quizId: ObjectId): Promise<ObjectId> {
         try {
             await this.checkIfQuizIsDoneByUser(userId, quizId);
@@ -301,6 +312,7 @@ class UserService {
         }
     }
 
+    //TODO: Refactor
     async shouldUserFinishChapter(userId: ObjectId, chapterId: ObjectId): Promise<boolean> {
         await DatabaseService.checkIfChapterExists(chapterId);
 
@@ -317,6 +329,7 @@ class UserService {
         return quizzesDoneForThisChapter.length === quizzesForThisChapter.length;
     }
 
+    //TODO: Refactor
     async finishChapterByUser(userId: ObjectId, chapterId: ObjectId): Promise<ObjectId> {
         try {
             await this.checkIfChapterIsDoneByUser(userId, chapterId);
@@ -330,6 +343,7 @@ class UserService {
         }
     }
 
+    //TODO: Refactor
     async checkIfQuizIsDoneByUser(userId: ObjectId, quizId: ObjectId): Promise<void> {
         const quizDone = await QuizDoneModel.findOne({
             userId: userId,
@@ -340,6 +354,7 @@ class UserService {
         }
     }
 
+    //TODO: Refactor
     async checkIfChapterIsDoneByUser(userId: ObjectId, chapterId: ObjectId): Promise<void> {
         const chapterDone = await ChapterDoneModel.findOne({
             userId: userId,
@@ -350,6 +365,7 @@ class UserService {
         }
     }
 
+    //TODO: Refactor
     async addRewardToUser(userId: ObjectId, rewardId: ObjectId): Promise<void> {
         try {
             await UserModel.updateOne(
