@@ -110,7 +110,7 @@ class UserService {
         const quizzesDoneWithinGivenPeriod: Populated<QuizDone, Quiz, 'quizId'>[] = await QuizDoneModel.find({
             userId,
             completedAt: { $gte: startDate, $lt: endDate },
-        }).populate('quizId');
+        }).populate<any>('quizId');
 
         const userActivity: { date: Date; points: number }[] = Array.from({ length: duration }, (_, dayCounter) => ({
             date: new Date(startDate.getTime() + dayCounter * msInADay),
@@ -127,17 +127,14 @@ class UserService {
         return userActivity;
     }
 
-    //TODO: Refactor
     async getUserStats(userId: ObjectId): Promise<GetUserStatsResponse> {
         const chaptersDone = await ChapterDoneModel.find({ userId });
         const quizzesDone = await QuizDoneModel.find({ userId });
 
-        const user: User | null = await UserModel.findById(userId);
+        const user: Populated<User, Reward[], 'rewards'> = await UserModel.findById(userId).populate<any>('rewards');
         if (!user) throw new ApplicationError('User not found', StatusCodes.NOT_FOUND);
 
-        const userRewardIds = user.rewards.map(({ _id }) => _id) || [];
-        const userRewards = await RewardModel.find({ _id: { $in: userRewardIds } });
-        const userRewardDescriptions = userRewards.map(({ description }) => description);
+        const userRewardDescriptions = user.rewards.map(({ description }) => description);
 
         return {
             chaptersDone: chaptersDone.length,
