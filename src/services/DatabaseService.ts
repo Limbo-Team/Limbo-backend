@@ -165,23 +165,38 @@ class DatabaseService {
         }
     }
 
-    async checkIfUserWithMailExists(email: string): Promise<void> {
+    async checkIfUserWithMailExists(email: string): Promise<ObjectId> {
         const user = await UserModel.findOne({
             email: email,
         });
         if (!user) {
             throw new ApplicationError('User with this mail does not exists', StatusCodes.CONFLICT);
         }
+        return user._id;
     }
 
     async addRewardToUser(userId: ObjectId, rewardId: ObjectId): Promise<void> {
         try {
-            await UserModel.updateOne(
+            await UserModel.create(
                 { _id: userId },
                 {
                     $push: {
                         rewards: rewardId,
                     },
+                },
+            );
+        } catch (error) {
+            throw handleError(error, (error as any).message);
+        }
+    }
+
+    async createResetCode(userId: ObjectId, code: number, createdAt: Date): Promise<void> {
+        try {
+            await UserModel.updateOne(
+                { user: userId },
+                {
+                    resetCode: code,
+                    createdAt: createdAt,
                 },
             );
         } catch (error) {

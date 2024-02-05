@@ -6,8 +6,8 @@ const resetCodeSchema = new mongoose.Schema({
         ref: 'User',
         required: true,
     },
-    code: {
-        type: String,
+    resetCode: {
+        type: Number,
         required: true,
     },
     createdAt: {

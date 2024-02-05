@@ -9,8 +9,10 @@ class PasswordService {
         if (!email) throw new ApplicationError('Invalid email', StatusCodes.BAD_REQUEST);
 
         try {
-            DatabaseService.checkIfUserWithMailExists(email.email);
-            await sendEmail({ destinationMail: email.email });
+            const resetCode = Math.floor(100000 + Math.random() * 900000);
+            const userId = await DatabaseService.checkIfUserWithMailExists(email.email);
+            DatabaseService.createResetCode(userId, resetCode, new Date());
+            await sendEmail({ destinationMail: email.email, resetCode: resetCode });
         } catch (error) {
             throw new ApplicationError('Error during email sending', StatusCodes.INTERNAL_SERVER_ERROR);
         }
