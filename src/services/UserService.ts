@@ -104,14 +104,13 @@ class UserService {
         return chaptersWithProgress;
     }
 
-    //TODO: Refactor
     async getUserActivity(userId: ObjectId, startDate: Date, duration: number): Promise<GetUserActivityResponse> {
         const endDate = new Date(startDate.getTime() + duration * msInADay);
 
-        const quizzesDoneWithinGivenPeriod = (await QuizDoneModel.find<QuizDone>({
+        const quizzesDoneWithinGivenPeriod: Populated<QuizDone, Quiz, 'quizId'>[] = await QuizDoneModel.find({
             userId,
             completedAt: { $gte: startDate, $lt: endDate },
-        }).populate('quizId')) as Populated<QuizDone, Quiz, 'quizId'>[];
+        }).populate('quizId');
 
         const userActivity: { date: Date; points: number }[] = Array.from({ length: duration }, (_, dayCounter) => ({
             date: new Date(startDate.getTime() + dayCounter * msInADay),
