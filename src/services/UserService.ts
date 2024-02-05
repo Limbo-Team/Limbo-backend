@@ -24,6 +24,8 @@ import {
 import { ChapterDoneModel } from '../models/ChapterDone';
 import { Reward, RewardModel } from '../models/Reward';
 import { QuestionModel } from '../models/Question';
+import DatabaseService from './DatabaseService';
+import handleError from '../utils/handleError';
 
 class UserService {
     async signInUser(userData: UserSignInBody): Promise<SignInUserResponse> {
@@ -182,16 +184,18 @@ class UserService {
     }
 
     async getQuizQuestions(userId: ObjectId, quizId: ObjectId): Promise<GetQuizQuestionsResponse> {
-        const quizDone = await QuizDoneModel.findOne({ userId, quizId });
-        if (quizDone) throw new ApplicationError('Quiz already done', StatusCodes.CONFLICT);
+        try {
+            await DatabaseService.checkIfQuizIsDoneByUser(userId, quizId);
+            const questions = await QuestionModel.find({ quizId });
 
-        const questions = await QuestionModel.find({ quizId });
-
-        return questions.map(({ _id: questionId, description, answers }) => ({
-            questionId,
-            description,
-            answers,
-        }));
+            return questions.map(({ _id: questionId, description, answers }) => ({
+                questionId,
+                description,
+                answers,
+            }));
+        } catch (error) {
+            throw handleError(error, (error as any).message);
+        }
     }
 
     async getUserAvailableRewards(userId: ObjectId): Promise<GetUserAvailableRewardsResponse> {
