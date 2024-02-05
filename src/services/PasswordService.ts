@@ -1,27 +1,19 @@
 import ApplicationError from '../utils/ApplicationError';
 import { StatusCodes } from 'http-status-codes';
-import { FetchedUser } from '../types/userTypes';
-import { UserModel } from '../models/User';
 import { passwordReset } from '../types/PasswordTypes';
 import sendEmail from './EmailServices';
+import DatabaseService from './DatabaseService';
 
 class PasswordService {
     async resetPassword(email: passwordReset): Promise<void> {
         if (!email) throw new ApplicationError('Invalid email', StatusCodes.BAD_REQUEST);
 
-        const user: FetchedUser | null = await UserModel.findOne({
-            email: email.email,
-        });
-
-        if (!user) throw new ApplicationError('User does not exist', StatusCodes.NOT_FOUND);
-
         try {
+            DatabaseService.checkIfUserWithMailExists(email.email);
             await sendEmail({ destinationMail: email.email });
         } catch (error) {
-            throw new ApplicationError('Email not sent', StatusCodes.INTERNAL_SERVER_ERROR);
+            throw new ApplicationError('Error during email sending', StatusCodes.INTERNAL_SERVER_ERROR);
         }
-
-        return;
     }
 }
 

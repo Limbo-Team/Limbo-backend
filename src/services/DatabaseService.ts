@@ -165,6 +165,15 @@ class DatabaseService {
         }
     }
 
+    async checkIfUserWithMailExists(email: string): Promise<void> {
+        const user = await UserModel.findOne({
+            email: email,
+        });
+        if (!user) {
+            throw new ApplicationError('User with this mail does not exists', StatusCodes.CONFLICT);
+        }
+    }
+
     async addRewardToUser(userId: ObjectId, rewardId: ObjectId): Promise<void> {
         try {
             await UserModel.updateOne(
