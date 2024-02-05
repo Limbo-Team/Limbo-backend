@@ -29,8 +29,9 @@ import handleError from '../utils/handleError';
 
 class UserService {
     async signInUser(userData: UserSignInBody): Promise<SignInUserResponse> {
-        if (!userData || !userData.email || !userData.password)
+        if (!userData || !userData.email || !userData.password) {
             throw new ApplicationError('Invalid user data', StatusCodes.BAD_REQUEST);
+        }
 
         const user: FetchedUser | null = await UserModel.findOne({
             email: userData.email,
@@ -58,14 +59,15 @@ class UserService {
     }
 
     async signUpUser(userData: UserSignUpBody): Promise<void> {
-        if (!userData || !userData.email || !userData.password || !userData.firstName || !userData.lastName)
+        if (!userData || !userData.email || !userData.password || !userData.firstName || !userData.lastName) {
             throw new ApplicationError('Invalid user data', StatusCodes.BAD_REQUEST);
+        }
 
-        const user: FetchedUser | null = await UserModel.findOne({
+        const foundUser: FetchedUser | null = await UserModel.findOne({
             email: userData.email,
         });
 
-        if (user) {
+        if (foundUser) {
             throw new ApplicationError('User already exists', StatusCodes.CONFLICT);
         }
 
@@ -185,7 +187,8 @@ class UserService {
 
     async getQuizQuestions(userId: ObjectId, quizId: ObjectId): Promise<GetQuizQuestionsResponse> {
         try {
-            await DatabaseService.checkIfQuizIsDoneByUser(userId, quizId);
+            await DatabaseService.checkIfQuizExists(quizId);
+            await this.checkIfQuizIsDoneByUser(userId, quizId);
             const questions = await QuestionModel.find({ quizId });
 
             return questions.map(({ _id: questionId, description, answers }) => ({
@@ -283,6 +286,83 @@ class UserService {
         await QuizDoneModel.create({ userId, quizId });
         await UserModel.findByIdAndUpdate(userId, { $inc: { points: quiz.points } });
         return { isCorrect: true, newPoints: user.points + quiz.points };
+    }
+
+    async finishQuizByUser(userId: ObjectId, quizId: ObjectId): Promise<ObjectId> {
+        try {
+            await this.checkIfQuizIsDoneByUser(userId, quizId);
+            const { _id: quizDoneId } = await QuizDoneModel.create({
+                userId: userId,
+                quizId: quizId,
+            });
+            return quizDoneId;
+        } catch (error) {
+            throw handleError(error, (error as any).message);
+        }
+    }
+
+    async shouldUserFinishChapter(userId: ObjectId, chapterId: ObjectId): Promise<boolean> {
+        await DatabaseService.checkIfChapterExists(chapterId);
+
+        const quizzesForThisChapter = await QuizModel.find({
+            chapterId: chapterId,
+        });
+        const quizzesDoneForThisChapter = await QuizDoneModel.find({
+            userId: userId,
+            quizId: {
+                $in: quizzesForThisChapter.map((quiz) => quiz._id),
+            },
+        });
+
+        return quizzesDoneForThisChapter.length === quizzesForThisChapter.length;
+    }
+
+    async finishChapterByUser(userId: ObjectId, chapterId: ObjectId): Promise<ObjectId> {
+        try {
+            await this.checkIfChapterIsDoneByUser(userId, chapterId);
+            const { _id: chapterDoneId } = await ChapterDoneModel.create({
+                userId: userId,
+                chapterId: chapterId,
+            });
+            return chapterDoneId;
+        } catch (error) {
+            throw handleError(error, (error as any).message);
+        }
+    }
+
+    async checkIfQuizIsDoneByUser(userId: ObjectId, quizId: ObjectId): Promise<void> {
+        const quizDone = await QuizDoneModel.findOne({
+            userId: userId,
+            quizId: quizId,
+        });
+        if (quizDone) {
+            throw new ApplicationError('Quiz is already done by user', StatusCodes.CONFLICT);
+        }
+    }
+
+    async checkIfChapterIsDoneByUser(userId: ObjectId, chapterId: ObjectId): Promise<void> {
+        const chapterDone = await ChapterDoneModel.findOne({
+            userId: userId,
+            chapterId: chapterId,
+        });
+        if (chapterDone) {
+            throw new ApplicationError('Chapter is already done by user', StatusCodes.CONFLICT);
+        }
+    }
+
+    async addRewardToUser(userId: ObjectId, rewardId: ObjectId): Promise<void> {
+        try {
+            await UserModel.updateOne(
+                { _id: userId },
+                {
+                    $push: {
+                        rewards: rewardId,
+                    },
+                },
+            );
+        } catch (error) {
+            throw handleError(error, (error as any).message);
+        }
     }
 }
 

@@ -4,6 +4,8 @@ import { Quiz, QuizModel } from '../src/models/Quiz';
 import { Reward, RewardModel } from '../src/models/Reward';
 import { User, UserModel } from '../src/models/User';
 import DatabaseService from '../src/services/DatabaseService';
+import AdminService from './services/AdminService';
+import UserService from './services/UserService';
 
 interface MockQuestion extends Partial<Question> {}
 
@@ -531,8 +533,9 @@ const MockQuizzesDatabase: MockQuizzesDatabase = {
 };
 
 const addRewards = async () => {
+    const adminService = new AdminService();
     MockRewards.forEach(async (reward) => {
-        await DatabaseService.addReward({
+        await adminService.addReward({
             cost: reward.cost,
             description: reward.description,
         });
@@ -540,8 +543,9 @@ const addRewards = async () => {
 };
 
 const addUsers = async () => {
+    const adminService = new AdminService();
     MockUsers.forEach(async (user) => {
-        await DatabaseService.addUser({
+        await adminService.addUser({
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
@@ -551,17 +555,19 @@ const addUsers = async () => {
 };
 
 const addQuizzesDatabase = async () => {
+    const adminService = new AdminService();
+
     MockChapters.forEach(async (thisChapter) => {
         //add chapter
-        const chapterId = await DatabaseService.addChapter({ title: thisChapter.title });
+        const chapterId = await adminService.addChapter({ title: thisChapter.title });
 
         //add quizzes
         thisChapter.quizzes.forEach(async (thisQuiz) => {
-            const quizId = await DatabaseService.addQuiz({ title: thisQuiz.title, points: thisQuiz.points, chapterId });
+            const quizId = await adminService.addQuiz({ title: thisQuiz.title, points: thisQuiz.points, chapterId });
 
             //add questions
             thisQuiz.questions.forEach(async (thisQuestion) => {
-                await DatabaseService.addQuestion({
+                await adminService.addQuestion({
                     description: thisQuestion.description,
                     answers: thisQuestion.answers,
                     correctAnswerIndex: thisQuestion.correctAnswerIndex,
@@ -575,25 +581,27 @@ const addQuizzesDatabase = async () => {
 const addRewardsToUsers = async () => {
     const users = await UserModel.find();
     const rewards = await RewardModel.find();
+    const userService = new UserService();
 
     users.forEach(async (user) => {
         const randomReward = rewards[Math.floor(Math.random() * rewards.length)];
-        await DatabaseService.addRewardToUser(user._id, randomReward._id);
+        await userService.addRewardToUser(user._id, randomReward._id);
     });
 };
 
 const addQuizzesDoneToUsers = async () => {
     const users = await UserModel.find();
     const quizzes = await QuizModel.find();
+    const userService = new UserService();
 
     //add 10 finished quizzes to each user
     for (let i = 0; i < 10; i++) {
         users.forEach(async (user) => {
             try {
                 const randomQuiz = quizzes[Math.floor(Math.random() * quizzes.length)];
-                await DatabaseService.finishQuizByUser(user._id, randomQuiz._id);
-                if (await DatabaseService.shouldUserFinishChapter(user._id, randomQuiz.chapterId)) {
-                    await DatabaseService.finishChapterByUser(user._id, randomQuiz.chapterId);
+                await userService.finishQuizByUser(user._id, randomQuiz._id);
+                if (await userService.shouldUserFinishChapter(user._id, randomQuiz.chapterId)) {
+                    await userService.finishChapterByUser(user._id, randomQuiz.chapterId);
                 }
             } catch (error) {
                 console.error(error);
