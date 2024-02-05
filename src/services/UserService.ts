@@ -26,6 +26,8 @@ import { Reward, RewardModel } from '../models/Reward';
 import { QuestionModel } from '../models/Question';
 import DatabaseService from './DatabaseService';
 import handleError from '../utils/handleError';
+import { Document, PopulatedDoc } from 'mongoose';
+import Populated from '../utils/Populated';
 
 class UserService {
     async signInUser(userData: UserSignInBody): Promise<SignInUserResponse> {
@@ -104,33 +106,23 @@ class UserService {
 
     //TODO: Refactor
     async getUserActivity(userId: ObjectId, startDate: Date, duration: number): Promise<GetUserActivityResponse> {
-        const endDate = new Date(startDate);
-        endDate.setDate(startDate.getDate() + duration);
+        const endDate = new Date(startDate.getTime() + duration * msInADay);
 
-        const quizzesDone = await QuizDoneModel.find({
+        const quizzesDoneWithinGivenPeriod = (await QuizDoneModel.find<QuizDone>({
             userId,
             completedAt: { $gte: startDate, $lt: endDate },
-        });
+        }).populate('quizId')) as Populated<QuizDone, Quiz, 'quizId'>[];
 
-        const quizzes = await QuizModel.find({ _id: { $in: quizzesDone.map(({ quizId }) => quizId) } });
+        const userActivity: { date: Date; points: number }[] = Array.from({ length: duration }, (_, dayCounter) => ({
+            date: new Date(startDate.getTime() + dayCounter * msInADay),
+            points: 0,
+        }));
 
-        const userActivity = Array.from({ length: duration }, (_, dayCounter) => {
-            const date = new Date(startDate);
-            date.setDate(startDate.getDate() + dayCounter);
-            return {
-                date,
-                points: 0,
-            };
-        });
+        quizzesDoneWithinGivenPeriod.forEach((quizDone) => {
+            const index = Math.floor((quizDone.completedAt.getTime() - startDate.getTime()) / msInADay);
+            const quiz = quizDone.quizId;
 
-        quizzesDone.forEach((quizDone) => {
-            const completeDate = quizDone.completedAt;
-            const index = (completeDate.getTime() - startDate.getTime()) / msInADay;
-            const quiz = quizzes.find(({ _id }) => _id.toString() === quizDone.quizId.toString());
-
-            if (quiz) {
-                userActivity[index].points += quiz.points;
-            }
+            userActivity[index].points += quiz.points;
         });
 
         return userActivity;
