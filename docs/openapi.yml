@@ -17,7 +17,7 @@ paths:
     /user/signin:
         post:
             tags:
-                - User
+                - User credentials
             summary: Sign in user
             description: |
                 This endpoint allows to sign in to user account by providing the necessary information.
@@ -76,7 +76,7 @@ paths:
     /user/signup:
         post:
             tags:
-                - User
+                - User credentials
             summary: Register a new user account
             description: |
                 This endpoint allows the registration of a new user account by providing the necessary information.
@@ -113,7 +113,7 @@ paths:
     /user/signout:
         post:
             tags:
-                - User
+                - User credentials
             summary: Signs out the current user
             operationId: logoutUser
             security:
@@ -143,7 +143,7 @@ paths:
     /user/chapters:
         get:
             tags:
-                - User
+                - User tasks
             summary: Get a list of progress in chapters
             description: |
                 This endpoint allows to fetch a list of progress in chapters.
@@ -188,7 +188,7 @@ paths:
     /user/chapters/{chapterId}/quizzes:
         get:
             tags:
-                - User
+                - User tasks
             summary: Get a list of progress in quizzes of chapter
             description: |
                 This endpoint allows to fetch a list of progress in quizzes of a given chapter.
@@ -234,7 +234,7 @@ paths:
     /user/quizzes/{quizId}/questions:
         get:
             tags:
-                - User
+                - User tasks
             summary: Get a list of questions in a quiz
             description: |
                 This endpoint allows to fetch a list of questions in a given quiz
@@ -296,7 +296,7 @@ paths:
     /user/activity:
         get:
             tags:
-                - User
+                - User info
             summary: Get a list of points achieved by user in a given time period
             description: |
                 This endpoint allows to fetch a list of points achieved by user in a given time period. Period is inclusive in the lower bound (startDate) and exclusive in the upper bound.
@@ -348,7 +348,7 @@ paths:
     /user/stats:
         get:
             tags:
-                - User
+                - User info
             summary: Get a list of statistics
             description: |
                 This endpoint allows to fetch a list of statistics: number of chapters done, quizzes done and descriptions of user rewards.
@@ -395,7 +395,7 @@ paths:
     /user/info:
         get:
             tags:
-                - User
+                - User info
             summary: Get a user info
             description: |
                 This endpoint allows to fetch a user info.
@@ -445,7 +445,7 @@ paths:
     /user/password:
         patch:
             tags:
-                - User
+                - User credentials
             summary: Change user password
             description: |
                 This endpoint allows to change user password.
@@ -482,7 +482,7 @@ paths:
     /user/rewards/available:
         get:
             tags:
-                - User
+                - User rewards
             summary: Get a list of rewards user can buy
             description: |
                 This endpoint allows user to get a list of rewards to buy (reward with certain id can only be bought once).
@@ -517,7 +517,7 @@ paths:
     /user/rewards/{rewardId}:
         post:
             tags:
-                - User
+                - User rewards
             summary: Buy a reward with given id
             description: |
                 This endpoint allows user to buy a reward (reward with certain id can only be bought once).
@@ -568,7 +568,7 @@ paths:
     /user/quizzes/{quizId}/answer:
         post:
             tags:
-                - User
+                - User tasks
             summary: Answer a quiz with a given id
             description: |
                 This endpoint allows answering a quiz with the specified quizId.
