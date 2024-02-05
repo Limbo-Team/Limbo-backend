@@ -131,8 +131,12 @@ class UserService {
         const chaptersDone = await ChapterDoneModel.find({ userId });
         const quizzesDone = await QuizDoneModel.find({ userId });
 
-        const user: Populated<User, Reward[], 'rewards'> = await UserModel.findById(userId).populate<any>('rewards');
-        if (!user) throw new ApplicationError('User not found', StatusCodes.NOT_FOUND);
+        const user: Populated<User, Reward[], 'rewards'> = await UserModel.findById({ userId }).populate<any>(
+            'rewards',
+        );
+        if (!user) {
+            throw new ApplicationError('User not found', StatusCodes.NOT_FOUND);
+        }
 
         const userRewardDescriptions = user.rewards.map(({ description }) => description);
 
@@ -143,10 +147,11 @@ class UserService {
         };
     }
 
-    //TODO: Refactor
     async getUserInfo(userId: ObjectId): Promise<GetUserInfoResponse> {
-        const user: User | null = await UserModel.findById(userId);
-        if (!user) throw new ApplicationError('User not found', StatusCodes.NOT_FOUND);
+        const user: User | null = await UserModel.findById({ userId });
+        if (!user) {
+            throw new ApplicationError('User not found', StatusCodes.NOT_FOUND);
+        }
 
         const { firstName, lastName, email, image, points } = user;
 
