@@ -11,6 +11,7 @@ import { ChapterDoneModel } from '../models/ChapterDone';
 import { ObjectId } from 'mongodb';
 import ApplicationError from '../utils/ApplicationError';
 import { StatusCodes } from 'http-status-codes';
+import { ResetCodeModel } from '../models/ResetCodes';
 
 class DatabaseService {
     async connect(): Promise<DatabaseService> {
@@ -166,13 +167,17 @@ class DatabaseService {
     }
 
     async checkIfUserWithMailExists(email: string): Promise<ObjectId> {
-        const user = await UserModel.findOne({
-            email: email,
-        });
-        if (!user) {
-            throw new ApplicationError('User with this mail does not exists', StatusCodes.CONFLICT);
+        try {
+            const user = await UserModel.findOne({
+                email: email,
+            });
+            if (!user) {
+                throw new ApplicationError('User does not exist', StatusCodes.NOT_FOUND);
+            }
+            return user._id;
+        } catch (error) {
+            throw handleError(error, (error as any).message);
         }
-        return user._id;
     }
 
     async addRewardToUser(userId: ObjectId, rewardId: ObjectId): Promise<void> {
@@ -190,15 +195,14 @@ class DatabaseService {
         }
     }
 
-    async createResetCode(userId: ObjectId, code: number, createdAt: Date): Promise<void> {
+    async createResetCode(userId: ObjectId, code: number, createdAt: Date): Promise<ObjectId> {
         try {
-            await UserModel.updateOne(
-                { user: userId },
-                {
-                    resetCode: code,
-                    createdAt: createdAt,
-                },
-            );
+            const { _id: resetCodeId } = await ResetCodeModel.create({
+                user: userId,
+                resetCode: code,
+                createdAt: createdAt,
+            });
+            return resetCodeId;
         } catch (error) {
             throw handleError(error, (error as any).message);
         }

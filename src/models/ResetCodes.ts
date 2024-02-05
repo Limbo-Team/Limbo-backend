@@ -18,4 +18,4 @@ const resetCodeSchema = new mongoose.Schema({
 });
 
 export type ResetCode = InferSchemaType<typeof resetCodeSchema>;
-export const ResetCodeModel = mongoose.model<ResetCode>('ResetCode', resetCodeSchema);
+export const ResetCodeModel = mongoose.model<ResetCode>('ResetCode', resetCodeSchema, 'resetCodes');
