@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import { FetchedUser } from '../types/userTypes';
 import { UserModel } from '../models/User';
 import { passwordReset } from '../types/PasswordTypes';
-import EmailService from './EmailServices';
+import sendEmail from './EmailServices';
 
 class PasswordService {
     async resetPassword(email: passwordReset): Promise<void> {
@@ -15,9 +15,8 @@ class PasswordService {
 
         if (!user) throw new ApplicationError('User does not exist', StatusCodes.NOT_FOUND);
 
-        const emailService = new EmailService();
         try {
-            await emailService.sendEmail(email.email);
+            await sendEmail({ destinationMail: email.email });
         } catch (error) {
             throw new ApplicationError('Email not sent', StatusCodes.INTERNAL_SERVER_ERROR);
         }

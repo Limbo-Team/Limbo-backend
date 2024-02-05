@@ -1,20 +1,22 @@
-import { Resend } from 'resend';
-import ApplicationError from '../utils/ApplicationError';
-import { StatusCodes } from 'http-status-codes';
-const resend = new Resend('re_MMbwqXQ7_AaxtLJ7cVhoyLYfaLxHVTaf6');
+'use strict';
+import nodemailer from 'nodemailer';
 
-class EmailService {
-    async sendEmail(email: string, code: number) {
-        const data = await resend.emails.send({
-            from: 'Acme <onboarding@resend.dev>',
-            to: email,
-            subject: 'Hello World',
-            html: `<strong>${code}</strong>`,
-        });
-        if (data.error) {
-            throw new ApplicationError('Email not sent', StatusCodes.INTERNAL_SERVER_ERROR);
-        }
-    }
+async function sendEmail({ destinationMail }: { destinationMail: string }) {
+    const transporter = nodemailer.createTransport({
+        host: 'smtp.ethereal.email',
+        port: 587,
+        secure: true,
+    });
+
+    const requestInfo = await transporter.sendMail({
+        from: 'test@gmail.com',
+        to: destinationMail,
+        subject: 'Hello ✔',
+        text: 'Hello world?',
+        html: '<b>Hello world?</b>',
+    });
+
+    console.log('Message sent: %s', requestInfo.messageId);
 }
 
-export default EmailService;
+export default sendEmail;
