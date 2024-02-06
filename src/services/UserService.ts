@@ -1,13 +1,13 @@
 import { StatusCodes } from 'http-status-codes';
 import { User, UserModel } from '../models/User';
-import { FetchedUser, AnswerQuizBody, UserSignInBody, UserSignUpBody } from '../types/userTypes';
+import { AnswerQuizBody, UserActivity, UserSignInBody, UserSignUpBody } from '../types/userTypes';
 import jwt from 'jsonwebtoken';
 import ApplicationError from '../utils/ApplicationError';
 import { accessTokenSecret } from '../config/environment';
 import { ChapterModel } from '../models/Chapter';
 import { QuizDone, QuizDoneModel } from '../models/QuizDone';
 import { Quiz, QuizModel } from '../models/Quiz';
-import { msInADay } from '../constants/constants';
+import { defaultActivityDurationInDays, defaultStartDate, msInADay } from '../constants/constants';
 import { ObjectId } from 'mongodb';
 import {
     AnswerQuizResponse,
@@ -27,14 +27,13 @@ import { QuestionModel } from '../models/Question';
 import DatabaseService from './DatabaseService';
 import toApplicationError from '../utils/toApplicationError';
 import Populated from '../utils/Populated';
+import validateRequestBody from '../utils/validateRequestBody';
 
 class UserService {
     async signInUser(userData: UserSignInBody): Promise<SignInUserResponse> {
-        if (!userData || !userData.email || !userData.password) {
-            throw new ApplicationError('Invalid user data', StatusCodes.BAD_REQUEST);
-        }
+        validateRequestBody(userData, ['email', 'password']);
 
-        const user: FetchedUser | null = await UserModel.findOne({
+        const user = await UserModel.findOne({
             email: userData.email,
             password: userData.password,
         });
@@ -60,11 +59,9 @@ class UserService {
     }
 
     async signUpUser(userData: UserSignUpBody): Promise<void> {
-        if (!userData || !userData.email || !userData.password || !userData.firstName || !userData.lastName) {
-            throw new ApplicationError('Invalid user data', StatusCodes.BAD_REQUEST);
-        }
+        validateRequestBody(userData, ['email', 'password', 'firstName', 'lastName']);
 
-        const foundUser: FetchedUser | null = await UserModel.findOne({
+        const foundUser = await UserModel.findOne({
             email: userData.email,
         });
 
@@ -76,11 +73,10 @@ class UserService {
     }
 
     async getUserChaptersProgress(userId: ObjectId): Promise<GetUserChaptersResponse> {
-        const allChapters = await ChapterModel.find();
         const allQuizzesDoneByUser = await QuizDoneModel.find({ userId });
-
         const quizzesDoneIds = allQuizzesDoneByUser.map(({ quizId }) => quizId.toString());
 
+        const allChapters = await ChapterModel.find();
         const chaptersWithProgress = await Promise.all(
             allChapters.map(async (chapter) => {
                 const { _id: chapterId, title: chapterTitle } = chapter;
@@ -103,15 +99,23 @@ class UserService {
         return chaptersWithProgress;
     }
 
-    async getUserActivity(userId: ObjectId, startDate: Date, duration: number): Promise<GetUserActivityResponse> {
+    async getUserActivity({
+        userId,
+        startDate,
+        duration,
+    }: {
+        userId: ObjectId;
+        startDate: Date;
+        duration: number;
+    }): Promise<GetUserActivityResponse> {
         const endDate = new Date(startDate.getTime() + duration * msInADay);
 
-        const quizzesDoneWithinGivenPeriod: Populated<QuizDone, Quiz, 'quizId'>[] = await QuizDoneModel.find({
+        const quizzesDoneWithinGivenPeriod = await QuizDoneModel.find({
             userId,
             completedAt: { $gte: startDate, $lt: endDate },
-        }).populate<any>('quizId');
+        }).populate<Populated<QuizDone, Quiz, 'quizId'>>('quizId');
 
-        const userActivity: { date: Date; points: number }[] = Array.from({ length: duration }, (_, dayCounter) => ({
+        const userActivity: UserActivity[] = Array.from({ length: duration }, (_, dayCounter) => ({
             date: new Date(startDate.getTime() + dayCounter * msInADay),
             points: 0,
         }));
@@ -127,13 +131,13 @@ class UserService {
     }
 
     async getUserStats(userId: ObjectId): Promise<GetUserStatsResponse> {
+        const user = await UserModel.findById(new ObjectId('657ff676df0ef993045d142b'))
+            .orFail()
+            .populate<Populated<User, Reward[], 'rewards'>>('rewards')
+            .exec();
+
         const chaptersDone = await ChapterDoneModel.find({ userId });
         const quizzesDone = await QuizDoneModel.find({ userId });
-
-        const user: Populated<User, Reward[], 'rewards'> = await UserModel.findById(userId).populate<any>('rewards');
-        if (!user) {
-            throw new ApplicationError('User not found', StatusCodes.NOT_FOUND);
-        }
 
         const userRewardDescriptions = user.rewards.map(({ description }) => description);
 
@@ -145,10 +149,7 @@ class UserService {
     }
 
     async getUserInfo(userId: ObjectId): Promise<GetUserInfoResponse> {
-        const user: User | null = await UserModel.findById(userId);
-        if (!user) {
-            throw new ApplicationError('User not found', StatusCodes.NOT_FOUND);
-        }
+        const user = await UserModel.findById(userId).orFail();
 
         const { firstName, lastName, email, image, points } = user;
 
@@ -181,9 +182,10 @@ class UserService {
     }
 
     async getQuestionsForQuiz(userId: ObjectId, quizId: ObjectId): Promise<GetQuizQuestionsResponse> {
-        await DatabaseService.checkIfQuizExists(quizId);
         await this.checkIfQuizIsDoneByUser(userId, quizId);
+
         const questions = await QuestionModel.find({ quizId });
+
         if (!questions) {
             throw new ApplicationError('Questions not found', StatusCodes.NOT_FOUND);
         }
@@ -216,17 +218,24 @@ class UserService {
 
     //TODO: Refactor
     async buyUserReward(userId: ObjectId, rewardId: ObjectId): Promise<BuyUserRewardResponse> {
-        const user: User | null = await UserModel.findById(userId);
-        if (!user) throw new ApplicationError('User not found', StatusCodes.FORBIDDEN);
+        const user = await UserModel.findById(userId).orFail();
+        if (!user) {
+            throw new ApplicationError('User not found', StatusCodes.NOT_FOUND);
+        }
 
         const userRewardIds = user.rewards.map(({ _id }) => _id) || [];
-        if (userRewardIds.includes(rewardId))
-            throw new ApplicationError('Reward already bought', StatusCodes.METHOD_NOT_ALLOWED);
+        if (userRewardIds.includes(rewardId)) {
+            throw new ApplicationError('Reward already bought', StatusCodes.CONFLICT);
+        }
 
         const reward: Reward | null = await RewardModel.findById(rewardId);
-        if (!reward) throw new ApplicationError('Reward not found', StatusCodes.NOT_FOUND);
+        if (!reward) {
+            throw new ApplicationError('Reward not found', StatusCodes.NOT_FOUND);
+        }
 
-        if (user.points < reward.cost) throw new ApplicationError('Not enough points', StatusCodes.NOT_ACCEPTABLE);
+        if (user.points < reward.cost) {
+            throw new ApplicationError('Not enough points', StatusCodes.BAD_REQUEST);
+        }
 
         await UserModel.findByIdAndUpdate(userId, { $push: { rewards: rewardId }, $inc: { points: -reward.cost } });
         return { newPoints: user.points - reward.cost };
@@ -333,6 +342,8 @@ class UserService {
 
     //TODO: Refactor
     async checkIfQuizIsDoneByUser(userId: ObjectId, quizId: ObjectId): Promise<void> {
+        await DatabaseService.checkIfQuizExists(quizId);
+
         const quizDone = await QuizDoneModel.findOne({
             userId: userId,
             quizId: quizId,

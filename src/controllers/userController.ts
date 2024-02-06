@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { AnswerQuizBody, UserSignInBody, UserSignUpBody } from '../types/userTypes';
 import UserService from '../services/UserService';
-import { defaultDuration, defaultStartDate } from '../constants/constants';
+import { defaultActivityDurationInDays, defaultStartDate } from '../constants/constants';
 import ApplicationError from '../utils/ApplicationError';
 import { ObjectId } from 'mongodb';
 
@@ -52,12 +52,14 @@ export const getUserActivity = async (req: Request, res: Response, next: NextFun
     try {
         const userId = res.locals.userId;
 
-        const stringDate = req.query.startDate ? (req.query.startDate as string) : defaultStartDate.toISOString();
-        const startDate = new Date(stringDate.split('T')[0]);
-        const duration = req.query.duration ? parseInt(req.query.duration as string) : defaultDuration;
+        const { startDate, duration } = req.query as { startDate: string; duration: string };
 
         const userService = new UserService();
-        const userActivity = await userService.getUserActivity(userId, startDate, duration);
+        const userActivity = await userService.getUserActivity({
+            userId,
+            startDate: startDate ? new Date(startDate) : defaultStartDate,
+            duration: duration ? parseInt(duration) : defaultActivityDurationInDays,
+        });
 
         return res.status(StatusCodes.OK).json(userActivity);
     } catch (error) {
