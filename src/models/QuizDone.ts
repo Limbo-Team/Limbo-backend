@@ -30,5 +30,6 @@ const quizDoneSchema = new mongoose.Schema({
     },
 });
 
-export type QuizDone = InferSchemaType<typeof quizDoneSchema>;
+type QuizDoneSchemaType = InferSchemaType<typeof quizDoneSchema>;
+export interface QuizDone extends QuizDoneSchemaType, mongoose.Document {}
 export const QuizDoneModel = mongoose.model<QuizDone>('QuizDone', quizDoneSchema, 'quizzesDone');

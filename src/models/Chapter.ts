@@ -14,5 +14,6 @@ const chapterSchema = new mongoose.Schema({
     },
 });
 
-export type Chapter = InferSchemaType<typeof chapterSchema>;
+export type ChapterSchemaType = InferSchemaType<typeof chapterSchema>;
+export interface Chapter extends ChapterSchemaType, mongoose.Document {}
 export const ChapterModel = mongoose.model<Chapter>('Chapter', chapterSchema);

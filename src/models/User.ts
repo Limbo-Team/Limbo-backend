@@ -58,5 +58,6 @@ const userSchema = new mongoose.Schema({
     },
 });
 
-export type User = InferSchemaType<typeof userSchema>;
+type UserSchemaType = InferSchemaType<typeof userSchema>;
+export interface User extends UserSchemaType, mongoose.Document {}
 export const UserModel = mongoose.model<User>('User', userSchema);

@@ -184,6 +184,9 @@ class UserService {
         await DatabaseService.checkIfQuizExists(quizId);
         await this.checkIfQuizIsDoneByUser(userId, quizId);
         const questions = await QuestionModel.find({ quizId });
+        if (!questions) {
+            throw new ApplicationError('Questions not found', StatusCodes.NOT_FOUND);
+        }
 
         return questions.map(({ _id: questionId, description, answers }) => ({
             questionId,
@@ -193,7 +196,7 @@ class UserService {
     }
 
     async getAvailableRewardsToBuy(userId: ObjectId): Promise<GetUserAvailableRewardsResponse> {
-        const user: User | null = await UserModel.findById(userId);
+        const user = await UserModel.findById(userId);
         if (!user) {
             throw new ApplicationError('User not found', StatusCodes.NOT_FOUND);
         }

@@ -37,5 +37,6 @@ const questionSchema = new mongoose.Schema({
     },
 });
 
-export type Question = InferSchemaType<typeof questionSchema>;
+type QuestionSchemaType = InferSchemaType<typeof questionSchema>;
+export interface Question extends QuestionSchemaType, mongoose.Document {}
 export const QuestionModel = mongoose.model<Question>('Question', questionSchema);

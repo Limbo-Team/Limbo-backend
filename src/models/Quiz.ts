@@ -26,5 +26,6 @@ const quizSchema = new mongoose.Schema({
     },
 });
 
-export type Quiz = InferSchemaType<typeof quizSchema>;
+export type QuizSchemaType = InferSchemaType<typeof quizSchema>;
+export interface Quiz extends QuizSchemaType, mongoose.Document {}
 export const QuizModel = mongoose.model<Quiz>('Quiz', quizSchema);

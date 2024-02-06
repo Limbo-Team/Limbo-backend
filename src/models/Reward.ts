@@ -20,5 +20,6 @@ const rewardSchema = new mongoose.Schema({
     },
 });
 
-export type Reward = InferSchemaType<typeof rewardSchema>;
+type RewardSchemaType = InferSchemaType<typeof rewardSchema>;
+export interface Reward extends RewardSchemaType, mongoose.Document {}
 export const RewardModel = mongoose.model<Reward>('Reward', rewardSchema);
