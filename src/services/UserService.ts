@@ -27,7 +27,7 @@ import { QuestionModel } from '../models/Question';
 import DatabaseService from './DatabaseService';
 import toApplicationError from '../utils/toApplicationError';
 import Populated from '../utils/Populated';
-import validateRequestBody from '../utils/validateRequestBody';
+import { validateRequestBody } from '../utils/validateRequest';
 
 class UserService {
     async signInUser(userData: UserSignInBody): Promise<SignInUserResponse> {
@@ -211,7 +211,7 @@ class UserService {
     async buyUserReward(userId: ObjectId, rewardId: ObjectId): Promise<BuyUserRewardResponse> {
         const user = await UserModel.findById(userId).orFail();
 
-        const isRewardAlreadyBought = user.rewards.find(({ _id }) => _id === rewardId);
+        const isRewardAlreadyBought = user.rewards.some(({ _id }) => _id === rewardId);
         if (isRewardAlreadyBought) {
             throw new ApplicationError('Reward already bought', StatusCodes.CONFLICT);
         }
@@ -219,7 +219,7 @@ class UserService {
         const reward = await RewardModel.findById(rewardId).orFail();
 
         if (user.points < reward.cost) {
-            throw new ApplicationError('Not enough points', StatusCodes.BAD_REQUEST);
+            throw new ApplicationError('Not enough points', StatusCodes.NOT_ACCEPTABLE);
         }
 
         await this.addRewardToUser(userId, rewardId);

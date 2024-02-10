@@ -5,6 +5,7 @@ import UserService from '../services/UserService';
 import { defaultActivityDurationInDays, defaultStartDate } from '../constants/constants';
 import ApplicationError from '../utils/ApplicationError';
 import { ObjectId } from 'mongodb';
+import { validateRequestArrayBody, validateRequestParams } from '../utils/validateRequest';
 
 export const signInUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -95,7 +96,7 @@ export const getUserInfo = async (req: Request, res: Response, next: NextFunctio
 
 export const getUserQuizzes = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        if (!req.params.chapterId) throw new ApplicationError('No chapter id provided', StatusCodes.BAD_REQUEST);
+        validateRequestParams(req.params, ['chapterId']);
 
         const chapterId = new ObjectId(req.params.chapterId as string);
         const userId = res.locals.userId;
@@ -111,7 +112,7 @@ export const getUserQuizzes = async (req: Request, res: Response, next: NextFunc
 
 export const getQuizQuestions = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        if (!req.params.quizId) throw new ApplicationError('No quiz id provided', StatusCodes.BAD_REQUEST);
+        validateRequestParams(req.params, ['quizId']);
 
         const quizId = new ObjectId(req.params.quizId as string);
         const userId = res.locals.userId;
@@ -140,7 +141,7 @@ export const getUserAvailableRewards = async (req: Request, res: Response, next:
 
 export const buyUserReward = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        if (!req.params.rewardId) throw new ApplicationError('No reward id provided', StatusCodes.BAD_REQUEST);
+        validateRequestParams(req.params, ['rewardId']);
 
         const rewardId = new ObjectId(req.params.rewardId as string);
         const userId = res.locals.userId;
@@ -156,9 +157,8 @@ export const buyUserReward = async (req: Request, res: Response, next: NextFunct
 
 export const answerQuiz = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        if (!req.params.quizId) throw new ApplicationError('No quiz id provided', StatusCodes.BAD_REQUEST);
-        if (req.body.constructor === Object && Object.keys(req.body).length === 0)
-            throw new ApplicationError('No answers provided', StatusCodes.BAD_REQUEST);
+        validateRequestParams(req.params, ['quizId']);
+        validateRequestArrayBody(req.body, 'answers');
 
         const quizId = new ObjectId(req.params.quizId as string);
         const userId = res.locals.userId;
