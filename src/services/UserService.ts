@@ -226,8 +226,8 @@ class UserService {
         return { newPoints: user.points - reward.cost };
     }
 
-    //TODO: Refactor
     async answerQuiz(userId: ObjectId, quizId: ObjectId, answers: AnswerQuizBody): Promise<AnswerQuizResponse> {
+        const quiz = await QuizModel.findById(quizId).orFail();
         const quizDone = await QuizDoneModel.findOne({ userId, quizId });
         if (quizDone) {
             throw new ApplicationError('Quiz already done', StatusCodes.CONFLICT);
@@ -242,7 +242,7 @@ class UserService {
         const userAnswers = questions.map((question) => {
             const { _id: questionId, correctAnswerIndex } = question;
             const userAnswerForThisQuestion = answers.find(
-                ({ questionId }) => questionId.toString() === questionId.toString(),
+                ({ questionId: answersQuestionId }) => answersQuestionId.toString() === questionId.toString(),
             )?.answer;
 
             const correctAnswerForThisQuestion = question.answers[correctAnswerIndex];
@@ -258,8 +258,8 @@ class UserService {
         const isQuizDoneCorrectly = userAnswers.every(({ isCorrect }) => isCorrect);
         if (isQuizDoneCorrectly) {
             await this.finishQuizByUser(userId, quizId);
-            if (await this.shouldUserFinishChapter(userId, quizId)) {
-                await this.finishChapterByUser(userId, quizId);
+            if (await this.shouldUserFinishChapter(userId, quiz.chapterId)) {
+                await this.finishChapterByUser(userId, quiz.chapterId);
             }
         }
 
