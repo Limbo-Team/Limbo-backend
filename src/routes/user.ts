@@ -12,6 +12,7 @@ import {
     getUserAvailableRewards,
     buyUserReward,
     answerQuiz,
+    noEndpointFound,
 } from '../controllers/userController';
 import { authenticateToken } from '../middlewares/authHandler';
 
@@ -31,4 +32,6 @@ userRouter.get('/quizzes/:quizId/questions', getQuizQuestions);
 userRouter.get('/rewards/available', getUserAvailableRewards);
 userRouter.post('/rewards/:rewardId', buyUserReward);
 userRouter.post('/quizzes/:quizId/answer', answerQuiz);
+userRouter.all('*', noEndpointFound);
+
 export default userRouter;

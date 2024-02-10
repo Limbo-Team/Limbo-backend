@@ -172,3 +172,7 @@ export const answerQuiz = async (req: Request, res: Response, next: NextFunction
         next(error);
     }
 };
+
+export const noEndpointFound = (req: Request, res: Response, next: NextFunction) => {
+    next(new ApplicationError('Endpoint not found', StatusCodes.NOT_FOUND));
+};

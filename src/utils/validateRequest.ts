@@ -23,7 +23,8 @@ export const validateRequestArrayBody = (requestBody: any, propertiesName: strin
 export const validateRequestParams = (params: any, properties: string[]) => {
     properties.forEach((property) => {
         const value = params[property];
-        if (typeof value !== 'string' || value.trim() === '') {
+        console.log(value);
+        if (typeof value !== 'string' || value === `:${property}` || value.trim() === '') {
             throw new ApplicationError(`Property ${property} is required`, StatusCodes.BAD_REQUEST);
         }
     });
