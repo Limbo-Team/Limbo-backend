@@ -1,4 +1,6 @@
 import mongoose, { InferSchemaType } from 'mongoose';
+import ApplicationError from '../utils/ApplicationError';
+import { StatusCodes } from 'http-status-codes';
 
 const quizDoneSchema = new mongoose.Schema({
     userId: {
