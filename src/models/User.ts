@@ -1,4 +1,7 @@
 import mongoose, { InferSchemaType } from 'mongoose';
+import ApplicationError from '../utils/ApplicationError';
+import { StatusCodes } from 'http-status-codes';
+import toApplicationError from '../utils/toApplicationError';
 
 const userSchema = new mongoose.Schema({
     firstName: {
@@ -58,5 +61,10 @@ const userSchema = new mongoose.Schema({
     },
 });
 
-export type User = InferSchemaType<typeof userSchema>;
+userSchema.post('findOne', function (error: any, doc: any, next: any): any {
+    next(new ApplicationError('User not found', StatusCodes.NOT_FOUND));
+});
+
+type UserSchemaType = InferSchemaType<typeof userSchema>;
+export interface User extends UserSchemaType, mongoose.Document {}
 export const UserModel = mongoose.model<User>('User', userSchema);

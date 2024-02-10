@@ -29,5 +29,10 @@ const chapterDoneSchema = new mongoose.Schema({
     },
 });
 
-export type ChapterDone = InferSchemaType<typeof chapterDoneSchema>;
+chapterDoneSchema.post('find', () => {
+    console.log('post find hookers');
+});
+
+export type ChapterDoneSchemaType = InferSchemaType<typeof chapterDoneSchema>;
+export interface ChapterDone extends ChapterDoneSchemaType, mongoose.Document {}
 export const ChapterDoneModel = mongoose.model<ChapterDone>('ChapterDone', chapterDoneSchema, 'chaptersDone');

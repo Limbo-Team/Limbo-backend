@@ -2,9 +2,10 @@ import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { AnswerQuizBody, UserSignInBody, UserSignUpBody } from '../types/userTypes';
 import UserService from '../services/UserService';
-import { defaultDuration, defaultStartDate } from '../constants/constants';
+import { defaultActivityDurationInDays, defaultStartDate } from '../constants/constants';
 import ApplicationError from '../utils/ApplicationError';
 import { ObjectId } from 'mongodb';
+import { validateRequestArrayBody, validateRequestParams } from '../utils/validateRequest';
 
 export const signInUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -40,7 +41,7 @@ export const getUserChapters = async (req: Request, res: Response, next: NextFun
         const userId = res.locals.userId;
         const userService = new UserService();
 
-        const userChapters = await userService.getUserChapters(userId);
+        const userChapters = await userService.getUserChaptersProgress(userId);
 
         return res.status(StatusCodes.OK).json(userChapters);
     } catch (error) {
@@ -52,12 +53,14 @@ export const getUserActivity = async (req: Request, res: Response, next: NextFun
     try {
         const userId = res.locals.userId;
 
-        const stringDate = req.query.startDate ? (req.query.startDate as string) : defaultStartDate.toISOString();
-        const startDate = new Date(stringDate.split('T')[0]);
-        const duration = req.query.duration ? parseInt(req.query.duration as string) : defaultDuration;
+        const { startDate, duration } = req.query as { startDate: string; duration: string };
 
         const userService = new UserService();
-        const userActivity = await userService.getUserActivity(userId, startDate, duration);
+        const userActivity = await userService.getUserActivity({
+            userId,
+            startDate: startDate ? new Date(startDate) : defaultStartDate,
+            duration: duration ? parseInt(duration) : defaultActivityDurationInDays,
+        });
 
         return res.status(StatusCodes.OK).json(userActivity);
     } catch (error) {
@@ -93,7 +96,7 @@ export const getUserInfo = async (req: Request, res: Response, next: NextFunctio
 
 export const getUserQuizzes = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        if (!req.params.chapterId) throw new ApplicationError('No chapter id provided', StatusCodes.BAD_REQUEST);
+        validateRequestParams(req.params, ['chapterId']);
 
         const chapterId = new ObjectId(req.params.chapterId as string);
         const userId = res.locals.userId;
@@ -109,13 +112,13 @@ export const getUserQuizzes = async (req: Request, res: Response, next: NextFunc
 
 export const getQuizQuestions = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        if (!req.params.quizId) throw new ApplicationError('No quiz id provided', StatusCodes.BAD_REQUEST);
+        validateRequestParams(req.params, ['quizId']);
 
         const quizId = new ObjectId(req.params.quizId as string);
         const userId = res.locals.userId;
         const userService = new UserService();
 
-        const questions = await userService.getQuizQuestions(userId, quizId);
+        const questions = await userService.getQuestionsForQuiz(userId, quizId);
 
         return res.status(StatusCodes.OK).json(questions);
     } catch (error) {
@@ -128,7 +131,7 @@ export const getUserAvailableRewards = async (req: Request, res: Response, next:
         const userId = res.locals.userId;
         const userService = new UserService();
 
-        const availableRewards = await userService.getUserAvailableRewards(userId);
+        const availableRewards = await userService.getAvailableRewardsToBuy(userId);
 
         return res.status(StatusCodes.OK).json(availableRewards);
     } catch (error) {
@@ -138,7 +141,7 @@ export const getUserAvailableRewards = async (req: Request, res: Response, next:
 
 export const buyUserReward = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        if (!req.params.rewardId) throw new ApplicationError('No reward id provided', StatusCodes.BAD_REQUEST);
+        validateRequestParams(req.params, ['rewardId']);
 
         const rewardId = new ObjectId(req.params.rewardId as string);
         const userId = res.locals.userId;
@@ -154,9 +157,8 @@ export const buyUserReward = async (req: Request, res: Response, next: NextFunct
 
 export const answerQuiz = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        if (!req.params.quizId) throw new ApplicationError('No quiz id provided', StatusCodes.BAD_REQUEST);
-        if (req.body.constructor === Object && Object.keys(req.body).length === 0)
-            throw new ApplicationError('No answers provided', StatusCodes.BAD_REQUEST);
+        validateRequestParams(req.params, ['quizId']);
+        validateRequestArrayBody(req.body, 'answers');
 
         const quizId = new ObjectId(req.params.quizId as string);
         const userId = res.locals.userId;
@@ -169,4 +171,8 @@ export const answerQuiz = async (req: Request, res: Response, next: NextFunction
     } catch (error) {
         next(error);
     }
+};
+
+export const noEndpointFound = (req: Request, res: Response, next: NextFunction) => {
+    next(new ApplicationError('Endpoint not found', StatusCodes.NOT_FOUND));
 };

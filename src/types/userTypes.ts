@@ -1,5 +1,4 @@
 import { ObjectId } from 'mongoose';
-import { User } from '../models/User';
 
 export type UserSignInBody = {
     email: string;
@@ -18,7 +17,7 @@ export type AnswerQuizBody = {
     answer: string;
 }[];
 
-export interface FetchedUser extends User {
-    _id: string;
-    __v: number;
-}
+export type UserActivity = {
+    date: Date;
+    points: number;
+};

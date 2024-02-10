@@ -66,10 +66,6 @@ paths:
                     description: Bad request. Check the request parameters.
                 '401':
                     description: Unauthorized. Incorrect username or password.
-                '403':
-                    description: Forbidden. The user might be authenticated but does not have permission to access this resource, or already signed in if that is not allowed.
-                '404':
-                    description: User not found.
                 '500':
                     description: Internal server error. Something went wrong on the server side.
 
@@ -170,8 +166,6 @@ paths:
                                   maximumQuizzes: 10
                                   doneQuizzes: 0
                                   percentage: 0
-                '400':
-                    description: Bad request. Check the request parameters.
                 '401':
                     description: Invalid or none auth token provided.
                 '500':
@@ -314,8 +308,6 @@ paths:
                                   points: 100
                                 - date: '2023-12-11T00:00:00.000Z'
                                   points: 300
-                '400':
-                    description: Bad request. Check the request parameters.
                 '401':
                     description: Invalid or none auth token provided.
                 '500':
@@ -375,8 +367,6 @@ paths:
                                         example:
                                             - 'Reward 1'
                                             - 'Reward 2'
-                '400':
-                    description: Bad request. Check the request parameters.
                 '401':
                     description: Invalid or none auth token provided.
                 '404':
@@ -425,8 +415,6 @@ paths:
                                     points:
                                         type: number
                                         example: 0
-                '400':
-                    description: Bad request. Check the request parameters.
                 '401':
                     description: Invalid or none auth token provided.'
                 '404':
@@ -539,11 +527,9 @@ paths:
                     description: Bad request. Check the request parameters.
                 '401':
                     description: Invalid or none auth token provided.
-                '403':
-                    description: User not found.
                 '404':
-                    description: Reward not found.
-                '405':
+                    description: Reward / User not found.
+                '409':
                     description: Reward already bought.
                 '406':
                     description: Not enough points to buy reward.
@@ -597,14 +583,18 @@ paths:
                                     newPoints:
                                         type: number
                                         example: 0
+                                    totalCorrectAnswers:
+                                        type: number
+                                        example: 1
+                                    totalQuestions:
+                                        type: number
+                                        example: 3
                 '400':
                     description: Bad request. Check the request parameters.
                 '401':
                     description: Unauthorized. Incorrect username or password.
                 '404':
-                    description: User or quiz not found.
-                '406':
-                    description: Incorrect answer body.
+                    description: User / Quiz not found.
                 '409':
                     description: User already did that quiz.
                 '500':

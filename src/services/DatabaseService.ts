@@ -1,11 +1,11 @@
 import mongoose from 'mongoose';
-import handleError from '../utils/handleError';
+import toApplicationError from '../utils/toApplicationError';
 import { mongoDBUri } from '../config/environment';
-import { User, UserModel } from '../models/User';
-import { Reward, RewardModel } from '../models/Reward';
-import { Chapter, ChapterModel } from '../models/Chapter';
-import { Quiz, QuizModel } from '../models/Quiz';
-import { Question, QuestionModel } from '../models/Question';
+import { UserModel } from '../models/User';
+import { RewardModel } from '../models/Reward';
+import { ChapterModel } from '../models/Chapter';
+import { QuizModel } from '../models/Quiz';
+import { QuestionModel } from '../models/Question';
 import { QuizDoneModel } from '../models/QuizDone';
 import { ChapterDoneModel } from '../models/ChapterDone';
 import { ObjectId } from 'mongodb';
@@ -19,7 +19,7 @@ class DatabaseService {
             console.info('🗄️ Connected to MongoDB');
             return this;
         } catch (error) {
-            throw handleError(error, 'Failed to connect to MongoDB');
+            throw toApplicationError(error, 'Failed to connect to MongoDB');
         }
     }
 
@@ -28,155 +28,52 @@ class DatabaseService {
             await mongoose.disconnect();
             console.info('🗄️ Disconnected from MongoDB');
         } catch (error) {
-            throw handleError(error, 'Failed to disconnect from MongoDB');
+            throw toApplicationError(error, 'Failed to disconnect from MongoDB');
         }
     }
 
-    async addUser(user: Partial<User>): Promise<void> {
-        try {
-            await UserModel.create({
-                firstName: user.firstName,
-                lastName: user.lastName,
-                email: user.email,
-                image: user.image,
-                points: user.points,
-                password: user.password,
-            });
-        } catch (error) {
-            throw handleError(error, (error as any).message);
-        }
-    }
-
-    async addReward(reward: Partial<Reward>): Promise<ObjectId> {
-        try {
-            const { _id: rewardId } = await RewardModel.create({
-                cost: reward.cost,
-                description: reward.description,
-            });
-            return rewardId;
-        } catch (error) {
-            throw handleError(error, (error as any).message);
-        }
-    }
-
-    async addChapter(chapter: Partial<Chapter>): Promise<ObjectId> {
-        try {
-            const { _id: chapterId } = await ChapterModel.create({
-                title: chapter.title,
-            });
-            return chapterId;
-        } catch (error) {
-            throw handleError(error, (error as any).message);
-        }
-    }
-
-    async addQuiz(quiz: Partial<Quiz>): Promise<ObjectId> {
-        try {
-            const { _id: quizId } = await QuizModel.create({
-                title: quiz.title,
-                points: quiz.points,
-                chapterId: quiz.chapterId,
-            });
-            return quizId;
-        } catch (error) {
-            throw handleError(error, (error as any).message);
-        }
-    }
-
-    async addQuestion(question: Partial<Question>): Promise<ObjectId> {
-        try {
-            const { _id: questionId } = await QuestionModel.create({
-                description: question.description,
-                answers: question.answers,
-                correctAnswerIndex: question.correctAnswerIndex,
-                quizId: question.quizId,
-            });
-            return questionId;
-        } catch (error) {
-            throw handleError(error, (error as any).message);
-        }
-    }
-
-    async finishQuizByUser(userId: ObjectId, quizId: ObjectId): Promise<ObjectId> {
-        try {
-            await this.checkIfQuizIsDoneByUser(userId, quizId);
-            const { _id: quizDoneId } = await QuizDoneModel.create({
-                userId: userId,
-                quizId: quizId,
-            });
-            return quizDoneId;
-        } catch (error) {
-            throw handleError(error, (error as any).message);
-        }
-    }
-
-    async shouldUserFinishChapter(userId: ObjectId, chapterId: ObjectId): Promise<boolean> {
+    async checkIfChapterExists(chapterId: ObjectId): Promise<void> {
         const chapter = await ChapterModel.findOne({
             _id: chapterId,
         });
         if (!chapter) {
-            throw new ApplicationError('Chapter does not exist', StatusCodes.NOT_FOUND);
-        }
-
-        const quizzes = await QuizModel.find({
-            chapterId: chapterId,
-        });
-
-        const quizzesDone = await QuizDoneModel.find({
-            userId: userId,
-            quizId: {
-                $in: quizzes.map((quiz) => quiz._id),
-            },
-        });
-
-        return quizzesDone.length === quizzes.length;
-    }
-
-    async finishChapterByUser(userId: ObjectId, chapterId: ObjectId): Promise<ObjectId> {
-        try {
-            await this.checkIfChapterIsDoneByUser(userId, chapterId);
-            const { _id: chapterDoneId } = await ChapterDoneModel.create({
-                userId: userId,
-                chapterId: chapterId,
-            });
-            return chapterDoneId;
-        } catch (error) {
-            throw handleError(error, (error as any).message);
+            throw new ApplicationError('Chapter not found', StatusCodes.NOT_FOUND);
         }
     }
 
-    async checkIfQuizIsDoneByUser(userId: ObjectId, quizId: ObjectId): Promise<void> {
-        const quizDone = await QuizDoneModel.findOne({
-            userId: userId,
-            quizId: quizId,
+    async checkIfQuizExists(quizId: ObjectId): Promise<void> {
+        const quiz = await QuizModel.findOne({
+            _id: quizId,
         });
-        if (quizDone) {
-            throw new ApplicationError('Quiz is already done by user', StatusCodes.CONFLICT);
+        if (!quiz) {
+            throw new ApplicationError('Quiz not found', StatusCodes.NOT_FOUND);
         }
     }
 
-    async checkIfChapterIsDoneByUser(userId: ObjectId, chapterId: ObjectId): Promise<void> {
-        const chapterDone = await ChapterDoneModel.findOne({
-            userId: userId,
-            chapterId: chapterId,
+    async checkIfQuestionExists(questionId: ObjectId): Promise<void> {
+        const question = await QuestionModel.findOne({
+            _id: questionId,
         });
-        if (chapterDone) {
-            throw new ApplicationError('Chapter is already done by user', StatusCodes.CONFLICT);
+        if (!question) {
+            throw new ApplicationError('Question not found', StatusCodes.NOT_FOUND);
         }
     }
 
-    async addRewardToUser(userId: ObjectId, rewardId: ObjectId): Promise<void> {
-        try {
-            await UserModel.updateOne(
-                { _id: userId },
-                {
-                    $push: {
-                        rewards: rewardId,
-                    },
-                },
-            );
-        } catch (error) {
-            throw handleError(error, (error as any).message);
+    async checkIfRewardExists(rewardId: ObjectId): Promise<void> {
+        const reward = await RewardModel.findOne({
+            _id: rewardId,
+        });
+        if (!reward) {
+            throw new ApplicationError('Reward not found', StatusCodes.NOT_FOUND);
+        }
+    }
+
+    async checkIfUserExists(userId: ObjectId): Promise<void> {
+        const user = await UserModel.findOne({
+            _id: userId,
+        });
+        if (!user) {
+            throw new ApplicationError('User not found', StatusCodes.NOT_FOUND);
         }
     }
 
@@ -225,7 +122,7 @@ class DatabaseService {
 
             console.info('🗄️ Added example to MongoDB');
         } catch (error) {
-            throw handleError(error, (error as any).message);
+            throw toApplicationError(error, (error as any).message);
         }
     }
 }

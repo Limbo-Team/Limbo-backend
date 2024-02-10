@@ -1,4 +1,6 @@
+import { StatusCodes } from 'http-status-codes';
 import mongoose, { InferSchemaType } from 'mongoose';
+import ApplicationError from '../utils/ApplicationError';
 
 const quizSchema = new mongoose.Schema({
     title: {
@@ -26,5 +28,10 @@ const quizSchema = new mongoose.Schema({
     },
 });
 
-export type Quiz = InferSchemaType<typeof quizSchema>;
+quizSchema.post('findOne', function (error: any, doc: any, next: any): any {
+    next(new ApplicationError('Quiz not found', StatusCodes.NOT_FOUND));
+});
+
+export type QuizSchemaType = InferSchemaType<typeof quizSchema>;
+export interface Quiz extends QuizSchemaType, mongoose.Document {}
 export const QuizModel = mongoose.model<Quiz>('Quiz', quizSchema);
