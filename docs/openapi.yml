@@ -580,7 +580,7 @@ paths:
                                     isCorrect:
                                         type: boolean
                                         example: true
-                                    newPoints:
+                                    earnedPoints:
                                         type: number
                                         example: 0
                                     totalCorrectAnswers:

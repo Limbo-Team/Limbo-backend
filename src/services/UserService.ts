@@ -264,11 +264,10 @@ class UserService {
         }
 
         const totalCorrectAnswers = userAnswers.filter(({ isCorrect }) => isCorrect).length;
-        const totalUserPoints = (await UserModel.findById(userId).orFail()).points;
 
         return {
             isCorrect: isQuizDoneCorrectly,
-            newPoints: totalUserPoints,
+            earnedPoints: isQuizDoneCorrectly ? quiz.points : 0,
             totalCorrectAnswers,
             totalQuestions: questions.length,
         };
