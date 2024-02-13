@@ -108,7 +108,7 @@ class UserService {
         startDate: Date;
         duration: number;
     }): Promise<GetUserActivityResponse> {
-        const endDate = new Date(startDate.getTime() + duration * msInADay);
+        const endDate = new Date(new Date(startDate.getTime() + duration * msInADay).toISOString().split('T')[0]);
 
         const quizzesDoneWithinGivenPeriod = await QuizDoneModel.find({
             userId,

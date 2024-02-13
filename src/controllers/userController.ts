@@ -58,7 +58,9 @@ export const getUserActivity = async (req: Request, res: Response, next: NextFun
         const userService = new UserService();
         const userActivity = await userService.getUserActivity({
             userId,
-            startDate: startDate ? new Date(startDate) : defaultStartDate,
+            startDate: startDate
+                ? new Date(new Date(startDate).toISOString().split('T')[0])
+                : new Date(defaultStartDate.toISOString().split('T')[0]),
             duration: duration ? parseInt(duration) : defaultActivityDurationInDays,
         });
 
