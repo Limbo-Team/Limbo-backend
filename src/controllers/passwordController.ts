@@ -19,7 +19,7 @@ export const verifyPassword = async (req: Request, res: Response, next: NextFunc
     try {
         const code: string = req.body.code;
         const passwordService = new PasswordService();
-        await passwordService.verifyPassword(code);
+        await passwordService.verifyPassword(req, code);
 
         return res.sendStatus(StatusCodes.OK);
     } catch (error) {

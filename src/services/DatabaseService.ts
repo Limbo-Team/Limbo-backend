@@ -226,13 +226,14 @@ class DatabaseService {
         }
     }
 
-    async getResetCode(code: number): Promise<void> {
+    async getResetCode(code: number, authenticateToken: string): Promise<void> {
         try {
             const resetCode = await ResetCodeModel.findOne({
                 resetCode: code,
+                token: authenticateToken,
             }).populate('user');
             if (!resetCode) {
-                throw new ApplicationError('Reset code does not exist', StatusCodes.NOT_FOUND);
+                throw new ApplicationError('Invalid data', StatusCodes.NOT_FOUND);
             }
         } catch (error) {
             throw handleError(error, (error as any).message);
@@ -261,6 +262,16 @@ class DatabaseService {
                     password: newPassword,
                 },
             );
+        } catch (error) {
+            throw handleError(error, (error as any).message);
+        }
+    }
+
+    async deleteResetCode(userId: ObjectId): Promise<void> {
+        try {
+            await ResetCodeModel.deleteOne({
+                user: userId,
+            });
         } catch (error) {
             throw handleError(error, (error as any).message);
         }
