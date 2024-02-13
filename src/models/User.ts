@@ -1,7 +1,7 @@
 import mongoose, { InferSchemaType } from 'mongoose';
 import ApplicationError from '../utils/ApplicationError';
 import { StatusCodes } from 'http-status-codes';
-import toApplicationError from '../utils/toApplicationError';
+import * as bcrypt from 'bcrypt';
 
 const userSchema = new mongoose.Schema({
     firstName: {
@@ -63,6 +63,18 @@ const userSchema = new mongoose.Schema({
 
 userSchema.post('findOne', function (error: any, doc: any, next: any): any {
     next(new ApplicationError('User not found', StatusCodes.NOT_FOUND));
+});
+
+userSchema.pre('save', async function (next: any) {
+    try {
+        if (this.isNew || this.isModified('password')) {
+            const salt = await bcrypt.genSalt(10);
+            this.password = await bcrypt.hash(this.password, salt);
+        }
+        next();
+    } catch (error) {
+        next(error);
+    }
 });
 
 type UserSchemaType = InferSchemaType<typeof userSchema>;
