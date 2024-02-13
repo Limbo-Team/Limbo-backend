@@ -27,8 +27,7 @@
         "mongoose": "^8.0.3",
         "nodemailer": "^6.9.7",
         "npm": "^10.2.4",
-        "run": "^1.4.0",
-        "socks": "^2.7.3"
+        "run": "^1.4.0"
     },
     "devDependencies": {
         "@types/bcrypt": "^5.0.2",
