@@ -28,6 +28,7 @@ import DatabaseService from './DatabaseService';
 import toApplicationError from '../utils/toApplicationError';
 import Populated from '../utils/Populated';
 import { validateRequestBody } from '../utils/validateRequest';
+import * as bcrypt from 'bcrypt';
 
 class UserService {
     async signInUser(userData: UserSignInBody): Promise<SignInUserResponse> {
@@ -35,10 +36,11 @@ class UserService {
 
         const user = await UserModel.findOne({
             email: userData.email,
-            password: userData.password,
         });
 
-        if (!user) {
+        const doesPasswordMatch = user ? await bcrypt.compare(userData.password, user.password) : false;
+
+        if (!user || !doesPasswordMatch) {
             throw new ApplicationError('Wrong email or password', StatusCodes.UNAUTHORIZED);
         }
 
