@@ -55,7 +55,7 @@ export type BuyUserRewardResponse = {
 
 export type AnswerQuizResponse = {
     isCorrect: boolean;
-    newPoints: number;
+    earnedPoints: number;
     totalCorrectAnswers: number;
     totalQuestions: number;
 };
