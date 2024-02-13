@@ -1,11 +1,11 @@
-export type passwordReset = {
+export type PasswordReset = {
     email: string;
 };
 
-export type passwordVerify = {
+export type PasswordVerify = {
     code: string;
 };
 
-export type passwordChange = {
+export type PasswordChange = {
     newPassword: string;
 };

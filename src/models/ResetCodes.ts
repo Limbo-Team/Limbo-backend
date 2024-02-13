@@ -15,6 +15,10 @@ const resetCodeSchema = new mongoose.Schema({
         default: Date.now,
         immutable: true,
     },
+    token: {
+        type: String,
+        required: true,
+    },
 });
 
 export type ResetCode = InferSchemaType<typeof resetCodeSchema>;

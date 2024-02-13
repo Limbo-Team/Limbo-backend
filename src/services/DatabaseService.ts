@@ -195,14 +195,72 @@ class DatabaseService {
         }
     }
 
-    async createResetCode(userId: ObjectId, code: number, createdAt: Date): Promise<ObjectId> {
+    async createResetCode(userId: ObjectId, code: number, createdAt: Date, token: string): Promise<ObjectId> {
         try {
-            const { _id: resetCodeId } = await ResetCodeModel.create({
+            const resetCodeUser = await ResetCodeModel.findOne({
                 user: userId,
-                resetCode: code,
-                createdAt: createdAt,
             });
-            return resetCodeId;
+            if (resetCodeUser) {
+                console.log('Updating reset code', resetCodeUser._id);
+                console.log('New code', code, 'New date', createdAt);
+                await ResetCodeModel.updateOne(
+                    { _id: resetCodeUser._id },
+                    {
+                        resetCode: code,
+                        createdAt: createdAt,
+                        token: token,
+                    },
+                );
+                return resetCodeUser._id;
+            } else {
+                const { _id: resetCodeId } = await ResetCodeModel.create({
+                    user: userId,
+                    resetCode: code,
+                    createdAt: createdAt,
+                    token: token,
+                });
+                return resetCodeId;
+            }
+        } catch (error) {
+            throw handleError(error, (error as any).message);
+        }
+    }
+
+    async getResetCode(code: number): Promise<void> {
+        try {
+            const resetCode = await ResetCodeModel.findOne({
+                resetCode: code,
+            }).populate('user');
+            if (!resetCode) {
+                throw new ApplicationError('Reset code does not exist', StatusCodes.NOT_FOUND);
+            }
+        } catch (error) {
+            throw handleError(error, (error as any).message);
+        }
+    }
+
+    async findUserIdByEmailAuthToken(emailResetAuthToken: string): Promise<ObjectId> {
+        try {
+            const resetCodeObject = await ResetCodeModel.findOne({
+                token: emailResetAuthToken,
+            }).populate('user');
+            if (!resetCodeObject) {
+                throw new ApplicationError('Invalid token', StatusCodes.NOT_FOUND);
+            }
+            return resetCodeObject.user._id;
+        } catch (error) {
+            throw handleError(error, (error as any).message);
+        }
+    }
+
+    async changeUserPassword(userId: ObjectId, newPassword: string): Promise<void> {
+        try {
+            await UserModel.updateOne(
+                { _id: userId },
+                {
+                    password: newPassword,
+                },
+            );
         } catch (error) {
             throw handleError(error, (error as any).message);
         }

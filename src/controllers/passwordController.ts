@@ -1,13 +1,25 @@
 import { NextFunction, Request, Response } from 'express';
-import { passwordReset } from '../types/PasswordTypes';
+import { PasswordReset } from '../types/PasswordTypes';
 import PasswordService from '../services/PasswordService';
 import { StatusCodes } from 'http-status-codes';
 
 export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const email: passwordReset = req.body;
+        const email: PasswordReset = req.body;
         const passwordService = new PasswordService();
-        await passwordService.resetPassword(email);
+        const emailResetAuthToken = await passwordService.resetPassword(email);
+
+        return res.status(StatusCodes.OK).json(emailResetAuthToken);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const verifyPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const code: string = req.body.code;
+        const passwordService = new PasswordService();
+        await passwordService.verifyPassword(code);
 
         return res.sendStatus(StatusCodes.OK);
     } catch (error) {
@@ -15,6 +27,15 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
     }
 };
 
-export const verifyPassword = async (req: Request, res: Response, next: NextFunction) => {};
+export const changePassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const newPassword: string = req.body.newPassword;
+        const confirmPassword: string = req.body.confirmPassword;
+        const passwordService = new PasswordService();
+        await passwordService.changePassword(req, newPassword, confirmPassword);
 
-export const changePassword = async (req: Request, res: Response, next: NextFunction) => {};
+        return res.sendStatus(StatusCodes.OK);
+    } catch (error) {
+        next(error);
+    }
+};
