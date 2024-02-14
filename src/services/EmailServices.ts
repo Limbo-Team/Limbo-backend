@@ -1,7 +1,6 @@
 'use strict';
 import nodemailer from 'nodemailer';
-import ApplicationError from '../utils/ApplicationError';
-import { StatusCodes } from 'http-status-codes';
+import handleError from '../utils/handleError';
 
 async function sendEmail({ destinationMail, resetCode }: { destinationMail: string; resetCode: number }) {
     try {
@@ -14,17 +13,18 @@ async function sendEmail({ destinationMail, resetCode }: { destinationMail: stri
             },
         });
 
-        const requestInfo = await transporter.sendMail({
-            from: 'test@gmail.com',
+        await transporter.sendMail({
+            from: 'limbo@gmail.com',
             to: destinationMail,
-            subject: 'Hello ✔',
+            subject: 'Veryfication code',
             text: 'Hello world?',
-            html: `<b>Twój kod: ${resetCode}</b>`,
+            html: `<b>Twój kod: ${resetCode}</b>
+            <p>Wprowadź ten kod w aplikacji, aby zresetować hasło. Pamiętaj, że kod jest aktywny tylko<b> 5 minut. </b></p>
+            <p>Jeśli to nie Ty, zignoruj tę wiadomość.</p>
+            <p>Pozdrawiamy, zespół Limbo</p>`,
         });
-
-        console.log('Message sent: %s', requestInfo.messageId);
     } catch (error) {
-        throw new ApplicationError('Email not sent', StatusCodes.INTERNAL_SERVER_ERROR);
+        throw handleError(error, (error as any).message);
     }
 }
 

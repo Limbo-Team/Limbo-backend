@@ -201,8 +201,6 @@ class DatabaseService {
                 user: userId,
             });
             if (resetCodeUser) {
-                console.log('Updating reset code', resetCodeUser._id);
-                console.log('New code', code, 'New date', createdAt);
                 await ResetCodeModel.updateOne(
                     { _id: resetCodeUser._id },
                     {

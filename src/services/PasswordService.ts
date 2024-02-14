@@ -7,7 +7,6 @@ import jwt from 'jsonwebtoken';
 import { emailResetTokenSecret } from '../config/environment';
 import { Request } from 'express';
 import AuthenticationError from '../utils/AuthenticationError';
-import { NextFunction } from 'express';
 import handleError from '../utils/handleError';
 
 class PasswordService {
@@ -37,7 +36,7 @@ class PasswordService {
             const token = await this.verifyToken(req.header('Authorization'));
             await DatabaseService.getResetCode(Number(code), token);
         } catch (error: any) {
-            throw new ApplicationError(error.message, StatusCodes.BAD_REQUEST);
+            throw handleError(error, (error as any).message);
         }
     }
 
@@ -51,7 +50,7 @@ class PasswordService {
             await DatabaseService.changeUserPassword(userId, newPassword);
             await DatabaseService.deleteResetCode(userId);
         } catch (error) {
-            throw new ApplicationError('Error during password change', StatusCodes.INTERNAL_SERVER_ERROR);
+            throw handleError(error, (error as any).message);
         }
     }
 
@@ -67,7 +66,7 @@ class PasswordService {
         try {
             jwt.verify(bearerToken, emailResetTokenSecret as string);
         } catch (error) {
-            throw new AuthenticationError('Invalid token');
+            throw handleError(error, (error as any).message);
         }
         return bearerToken;
     }
