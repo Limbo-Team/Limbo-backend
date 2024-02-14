@@ -66,6 +66,8 @@ class PasswordService {
         try {
             jwt.verify(bearerToken, emailResetTokenSecret as string);
         } catch (error) {
+            const userId = await DatabaseService.findUserIdByEmailAuthToken(bearerToken);
+            DatabaseService.deleteResetCode(userId);
             throw handleError(error, (error as any).message);
         }
         return bearerToken;
